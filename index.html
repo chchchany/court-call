@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>코트콜 — 번개 테니스 예약 플랫폼</title>
+  <meta name="description" content="카카오톡 오픈채팅 번개 테니스 경기를 1분 만에 개설하고, 참가 신청 · N빵 계산 · 카카오페이 결제까지 자동으로!">
+  <link rel="stylesheet" href="css/style.css">
+
+  <style>
+    /* 앱 래퍼 */
+    body { background: #050d1a; }
+    .app-container { box-shadow: 0 0 60px rgba(0,0,0,0.8); }
+
+    /* 로그인/온보딩 전용 */
+    .auth-page-wrap {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* 네이티브 숫자 입력 화살표 숨기기 */
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+    input[type=number] { -moz-appearance: textfield; }
+
+    /* 탑 헤더 flex 수정 */
+    .top-header .spacer { flex: 1; }
+
+    /* hidden 유틸리티 */
+    .hidden { display: none !important; }
+
+    /* 홈 히어로 배지들 */
+    .level-badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.07);
+    }
+  </style>
+</head>
+
+<body>
+<div class="app-container" id="app">
+
+  <!-- ════════════════════════════════════════════
+       온보딩 페이지
+  ════════════════════════════════════════════ -->
+  <div id="page-onboarding" class="page-no-nav">
+    <div class="onboarding-bg">
+      <div class="onboarding-glow glow-1"></div>
+      <div class="onboarding-glow glow-2"></div>
+      <div class="onboarding-glow glow-3"></div>
+      <div class="court-lines"></div>
+    </div>
+
+    <div class="onboarding-content">
+      <div>
+        <div class="onboarding-logo">Court<span>Call</span></div>
+        <div class="onboarding-tagline">번개 테니스의 새로운 기준</div>
+      </div>
+
+      <div class="onboarding-hero">
+        <!-- 떠다니는 경기 카드 미리보기 -->
+        <div class="hero-match-card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <span class="match-status-badge badge-recruiting">모집중</span>
+            <span style="font-size:12px;color:var(--cc-gray-400);">3분 전</span>
+          </div>
+          <div style="font-size:18px;font-weight:800;margin-bottom:8px;">영등포 번개 테니스 🎾</div>
+          <div class="match-info-row" style="font-size:13px;">
+            <svg width="13" height="13" fill="none" stroke="var(--cc-gray-400)" stroke-width="2" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            영등포 공원 테니스코트
+          </div>
+          <div class="match-info-row" style="font-size:13px;">
+            <svg width="13" height="13" fill="none" stroke="var(--cc-gray-400)" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            오늘 저녁 7시 · 2시간
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding-top:12px;border-top:1px solid var(--cc-border);">
+            <div style="display:flex;gap:4px;">
+              <div class="slot-dot filled"></div>
+              <div class="slot-dot filled"></div>
+              <div class="slot-dot"></div>
+              <div class="slot-dot"></div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:20px;font-weight:800;font-family:'Inter',sans-serif;color:var(--cc-lime);">19,000원</div>
+              <div style="font-size:10px;color:var(--cc-gray-600);">1인 참가비</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 기능 하이라이트 -->
+        <div style="display:flex;flex-direction:column;gap:12px;margin-top:8px;">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div style="width:36px;height:36px;background:rgba(200,255,0,0.1);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">⚡</div>
+            <div>
+              <div style="font-size:14px;font-weight:700;">1분 만에 경기 개설</div>
+              <div style="font-size:12px;color:var(--cc-gray-400);">자동 N빵 계산 · 참가자 모집</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div style="width:36px;height:36px;background:rgba(255,232,18,0.1);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">💳</div>
+            <div>
+              <div style="font-size:14px;font-weight:700;">카카오페이 자동 결제</div>
+              <div style="font-size:12px;color:var(--cc-gray-400);">확정 즉시 송금 링크 발송</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div style="width:36px;height:36px;background:rgba(61,139,255,0.1);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">🔔</div>
+            <div>
+              <div style="font-size:14px;font-weight:700;">실시간 대기자 자동 승격</div>
+              <div style="font-size:12px;color:var(--cc-gray-400);">취소 발생 시 즉시 알림</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="onboarding-cta">
+        <button class="btn btn-primary btn-full btn-lg" data-page="signup">
+          무료로 시작하기 →
+        </button>
+        <button class="btn btn-secondary btn-full" data-page="login">
+          이미 계정이 있어요
+        </button>
+        <div style="text-align:center;font-size:11px;color:var(--cc-gray-600);margin-top:4px;">
+          가입 시 <a href="#" style="color:var(--cc-gray-400);text-decoration:underline;">이용약관</a> 및 <a href="#" style="color:var(--cc-gray-400);text-decoration:underline;">개인정보처리방침</a>에 동의합니다
+        </div>
+
+        <!-- 데모 모드 -->
+        <button class="btn btn-secondary btn-full btn-sm" id="demoBtn" style="border-color:rgba(200,255,0,0.3);color:var(--cc-lime);" onclick="Demo.quickLogin()">
+          🎾 데모로 체험하기 (로그인 없이)
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ════════════════════════════════════════════
+       로그인 페이지
+  ════════════════════════════════════════════ -->
+  <div id="page-login" class="page-no-nav">
+    <div class="auth-page-wrap">
+      <div class="auth-header">
+        <button class="header-back" data-page="onboarding" style="margin-bottom:8px;">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <div style="font-size:28px;font-weight:900;font-family:'Inter',sans-serif;letter-spacing:-1px;">
+          Court<span style="color:var(--cc-lime);">Call</span>
+        </div>
+        <div style="font-size:22px;font-weight:800;margin-top:var(--space-sm);">다시 오셨군요 👋</div>
+        <div style="font-size:14px;color:var(--cc-gray-400);margin-top:4px;">로그인하고 번개 테니스를 즐겨보세요</div>
+      </div>
+
+      <div class="auth-content" style="flex:1;">
+        <!-- 카카오 로그인 -->
+        <button class="btn btn-kakao btn-full btn-lg" id="kakaoLoginBtn" style="margin-bottom:var(--space-md);" onclick="Demo.kakaoLogin()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="#3A1D00"><path d="M12 3C6.477 3 2 6.477 2 10.88c0 2.667 1.62 5.014 4.08 6.432-.15.56-.538 2.03-.617 2.345-.097.39.142.384.3.28.124-.083 1.966-1.336 2.763-1.878.467.065.944.1 1.474.1 5.523 0 10-3.477 10-7.88S17.523 3 12 3z"/></svg>
+          카카오로 로그인
+        </button>
+
+        <div class="auth-divider">또는</div>
+
+        <!-- 폰 번호 로그인 -->
+        <div class="form-group">
+          <label class="form-label">휴대폰 번호</label>
+          <input type="tel" id="loginPhone" class="form-input" placeholder="010-0000-0000" maxlength="13"
+            oninput="this.value=this.value.replace(/[^0-9]/g,'').replace(/(\d{3})(\d{4})(\d{4})/,'$1-$2-$3')">
+        </div>
+        <div class="form-group">
+          <label class="form-label">비밀번호</label>
+          <input type="password" id="loginPw" class="form-input" placeholder="비밀번호 입력">
+        </div>
+
+        <button class="btn btn-green btn-full" style="margin-top:8px;" onclick="Demo.phoneLogin()">
+          로그인
+        </button>
+
+        <div style="text-align:center;margin-top:var(--space-md);font-size:14px;color:var(--cc-gray-400);">
+          계정이 없으신가요? <span style="color:var(--cc-lime);font-weight:700;cursor:pointer;" data-page="signup">회원가입</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ════════════════════════════════════════════
+       회원가입 페이지
+  ════════════════════════════════════════════ -->
+  <div id="page-signup" class="page-no-nav">
+    <div class="auth-page-wrap">
+      <div class="auth-header">
+        <button class="header-back" data-page="onboarding">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <div style="font-size:22px;font-weight:800;margin-top:var(--space-sm);">코트콜 가입 🎾</div>
+        <div style="font-size:14px;color:var(--cc-gray-400);margin-top:4px;">정보를 입력하고 번개 테니스를 시작하세요</div>
+      </div>
+
+      <div class="auth-content" style="flex:1;">
+        <!-- 카카오 가입 -->
+        <button class="btn btn-kakao btn-full" style="margin-bottom:var(--space-md);" onclick="Demo.kakaoLogin()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="#3A1D00"><path d="M12 3C6.477 3 2 6.477 2 10.88c0 2.667 1.62 5.014 4.08 6.432-.15.56-.538 2.03-.617 2.345-.097.39.142.384.3.28.124-.083 1.966-1.336 2.763-1.878.467.065.944.1 1.474.1 5.523 0 10-3.477 10-7.88S17.523 3 12 3z"/></svg>
+          카카오로 간편 가입
+        </button>
+
+        <div class="auth-divider">또는</div>
+
+        <div class="form-group">
+          <label class="form-label">닉네임</label>
+          <input type="text" id="signupName" class="form-input" placeholder="테니스인" maxlength="10">
+        </div>
+        <div class="form-group">
+          <label class="form-label">휴대폰 번호</label>
+          <input type="tel" id="signupPhone" class="form-input" placeholder="010-0000-0000" maxlength="13"
+            oninput="this.value=this.value.replace(/[^0-9]/g,'').replace(/(\d{3})(\d{4})(\d{4})/,'$1-$2-$3')">
+        </div>
+        <div class="form-group">
+          <label class="form-label">비밀번호</label>
+          <input type="password" id="signupPw" class="form-input" placeholder="8자 이상">
+        </div>
+        <div class="form-group">
+          <label class="form-label">실력 수준</label>
+          <select id="signupLevel" class="form-input">
+            <option value="초급">초급 (입문 ~ 6개월)</option>
+            <option value="초중급">초중급 (6개월 ~ 1년)</option>
+            <option value="중급" selected>중급 (1~3년)</option>
+            <option value="중상급">중상급 (3~5년)</option>
+            <option value="상급">상급 (5년 이상)</option>
+          </select>
+        </div>
+
+        <button class="btn btn-primary btn-full btn-lg" onclick="Demo.signup()">
+          가입하고 시작하기 →
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ════════════════════════════════════════════
+       홈 페이지 (메인 피드)
+  ════════════════════════════════════════════ -->
+  <div id="page-home" class="page">
+    <!-- 탑 헤더 -->
+    <div class="top-header">
+      <div style="font-size:20px;font-weight:900;font-family:'Inter',sans-serif;letter-spacing:-0.5px;">
+        Court<span style="color:var(--cc-lime);">Call</span>
+      </div>
+      <div class="spacer"></div>
+      <div class="header-actions">
+        <div class="icon-btn" data-page="notifications" id="notifBell">
+          <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <div class="badge-dot" id="notifBadge" style="display:none;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 히어로 -->
+    <div class="home-hero">
+      <div class="home-greeting" id="homeGreeting">안녕하세요 👋</div>
+      <div class="home-title">오늘은 어떤<br>경기에 참가할까요?</div>
+      <div class="home-stats">
+        <div class="home-stat-item">
+          <div class="home-stat-value" id="homeStatHost">0</div>
+          <div class="home-stat-label">내가 개설</div>
+        </div>
+        <div class="home-stat-item">
+          <div class="home-stat-value" id="homeStatJoined">0</div>
+          <div class="home-stat-label">참가 신청</div>
+        </div>
+        <div class="home-stat-item">
+          <div class="home-stat-value" id="homeStatOpen">0</div>
+          <div class="home-stat-label">모집 중</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 필터 -->
+    <div class="filter-scroll">
+      <div class="filter-row">
+        <div class="chip chip-active filter-chip" data-filter="all" onclick="Home.setFilter('all')">전체</div>
+        <div class="chip chip-default filter-chip" data-filter="recruiting" onclick="Home.setFilter('recruiting')">🟢 모집중</div>
+        <div class="chip chip-default filter-chip" data-filter="today" onclick="Home.setFilter('today')">📅 오늘</div>
+        <div class="chip chip-default filter-chip" data-filter="weekend" onclick="Home.setFilter('weekend')">🎾 주말</div>
+        <div class="chip chip-default filter-chip" data-filter="confirmed" onclick="Home.setFilter('confirmed')">✅ 확정</div>
+      </div>
+    </div>
+
+    <!-- 경기 목록 -->
+    <div class="match-list" id="matchList">
+      <!-- JS로 렌더링 -->
+      <div class="skeleton" style="height:140px;border-radius:16px;"></div>
+      <div class="skeleton" style="height:140px;border-radius:16px;margin-top:8px;"></div>
+      <div class="skeleton" style="height:140px;border-radius:16px;margin-top:8px;"></div>
+    </div>
+  </div>
+
+
+  <!-- ════════════════════════════════════════════
+       경기 개설 페이지
+  ════════════════════════════════════════════ -->
+  <div id="page-create-match" class="page">
+    <div class="top-header">
+      <button class="header-back" data-page="home">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <div class="header-title">경기 개설</div>
+      <div style="width:40px;"></div>
+    </div>
+
+    <div style="padding: 0 var(--space-md);">
+      <form id="createMatchForm" onsubmit="event.preventDefault();">
+
+        <!-- 기본 정보 -->
+        <div style="margin-top:var(--space-md);">
+          <div class="section-title">📋 기본 정보</div>
+
+          <div class="form-group">
+            <label class="form-label">경기 제목 <span style="color:var(--cc-gray-600);font-size:11px;">(선택)</span></label>
+            <input type="text" id="matchTitle" class="form-input" placeholder="예: 영등포 저녁 번개 🎾" maxlength="30">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">코트 이름 <span style="color:var(--cc-red);font-size:12px;">*</span></label>
+            <input type="text" id="venue" class="form-input" placeholder="예: 영등포 공원 테니스코트" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">주소</label>
+            <input type="text" id="address" class="form-input" placeholder="예: 서울시 영등포구 여의도동 44">
+          </div>
+
+          <div class="grid-2">
+            <div class="form-group">
+              <label class="form-label">날짜 <span style="color:var(--cc-red);font-size:12px;">*</span></label>
+              <input type="date" id="matchDate" class="form-input" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">시작 시간 <span style="color:var(--cc-red);font-size:12px;">*</span></label>
+              <input type="time" id="matchTime" class="form-input" value="19:00" required>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="form-group">
+              <label class="form-label">경기 시간</label>
+              <select id="duration" class="form-input">
+                <option value="60">1시간</option>
+                <option value="90">1시간 30분</option>
+                <option value="120" selected>2시간</option>
+                <option value="150">2시간 30분</option>
+                <option value="180">3시간</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">실력 수준</label>
+              <select id="level" class="form-input">
+                <option value="초급">초급</option>
+                <option value="초중급">초중급</option>
+                <option value="중급" selected>중급</option>
+                <option value="중상급">중상급</option>
+                <option value="상급">상급</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- 인원 & 비용 -->
+        <div style="margin-top:var(--space-md);">
+          <div class="section-title">💰 인원 & 비용</div>
+
+          <div class="grid-2">
+            <div class="form-group">
+              <label class="form-label">모집 인원 <span style="color:var(--cc-red);font-size:12px;">*</span></label>
+              <input type="number" id="maxPlayers" class="form-input" value="4" min="2" max="20"
+                oninput="CreateMatch.updateCalculator()">
+            </div>
+            <div class="form-group">
+              <label class="form-label">코트 총비용 <span style="color:var(--cc-red);font-size:12px;">*</span></label>
+              <div class="form-input-prefix">
+                <span class="prefix">₩</span>
+                <input type="number" id="totalCost" class="form-input" placeholder="76000" min="0"
+                  oninput="CreateMatch.updateCalculator()">
+              </div>
+            </div>
+          </div>
+
+          <!-- 자동 계산 결과 -->
+          <div class="cost-calculator" id="costCalculator">
+            <div class="cost-row">
+              <span style="color:var(--cc-gray-400);">코트 총비용</span>
+              <span style="font-weight:600;">0원</span>
+            </div>
+            <div class="cost-row">
+              <span style="color:var(--cc-gray-400);">모집 인원</span>
+              <span style="font-weight:600;">4명</span>
+            </div>
+            <div class="cost-row">
+              <span style="font-weight:700;">1인 참가비</span>
+              <span class="cost-total" id="perPersonCost">0원</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 메모 -->
+        <div style="margin-top:var(--space-md);">
+          <div class="section-title">📝 참가자에게 알릴 내용</div>
+          <div class="form-group">
+            <textarea id="note" class="form-input" rows="3" placeholder="예: 라켓 지참 필수, 캔볼 포함, 주차 가능합니다 🎾" style="resize:none;"></textarea>
+          </div>
+        </div>
+
+        <!-- 제출 -->
+        <button type="button" class="btn btn-primary btn-full btn-lg" style="margin-bottom:24px;" onclick="CreateMatch.submit()">
+          🎾 경기 개설하기
+        </button>
+
+      </form>
+    </div>
+  </div>
+
+
+  <!-- ════════════════════════════════════════════
+       경기 상세 페이지
+  ════════════════════════════════════════════ -->
+  <div id="page-match-detail" class="page">
+    <div class="top-header">
+      <button class="header-back" data-page="home">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <div class="header-title">경기 상세</div>
+      <div style="width:40px;"></div>
+    </div>
+    <div id="matchDetailContent">
+      <!-- JS로 렌더링 -->
+    </div>
+  </div>
+
+
+  <!-- ════════════════════════════════════════════
+       호스트 대시보드
+  ════════════════════════════════════════════ -->
+  <div id="page-host-dash" class="page">
+    <div class="top-header">
+      <button class="header-back" onclick="history.back(); App.navigate('my-matches');">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <div class="header-title">호스트 대시보드</div>
+      <div style="width:40px;"></div>
+    </div>
+    <div id="hostDashContent">
+      <!-- JS로 렌더링 -->
+    </div>
+  </div>
+
+
+  <!-- ════════════════════════════════════════════
+       내 경기 페이지
+  ════════════════════════════════════════════ -->
+  <div id="page-my-matches" class="page">
+    <div class="top-header">
+      <div style="font-size:18px;font-weight:800;">내 경기</div>
+    </div>
+
+    <!-- 탭 -->
+    <div style="padding:var(--space-sm) var(--space-md);border-bottom:1px solid var(--cc-border);display:flex;gap:8px;">
+      <div class="chip chip-active my-matches-tab" data-tab="participating" onclick="MyMatches.setTab('participating')">참가 경기</div>
+      <div class="chip chip-default my-matches-tab" data-tab="hosting" onclick="MyMatches.setTab('hosting')">개설 경기</div>
+    </div>
+
+    <div class="match-list" id="myMatchList">
+      <!-- JS로 렌더링 -->
+    </div>
+  </div>
+
+
+  <!-- ════════════════════════════════════════════
+       알림 페이지
+  ════════════════════════════════════════════ -->
+  <div id="page-notifications" class="page">
+    <div class="top-header">
+      <div style="font-size:18px;font-weight:800;">알림</div>
+      <div class="spacer"></div>
+      <button style="font-size:12px;color:var(--cc-gray-400);padding:8px;" onclick="Notifications.render()">
+        모두 읽음
+      </button>
+    </div>
+
+    <div id="notifList">
+      <!-- JS로 렌더링 -->
+    </div>
+  </div>
+
+
+  <!-- ════════════════════════════════════════════
+       프로필 페이지
+  ════════════════════════════════════════════ -->
+  <div id="page-profile" class="page">
+    <div class="top-header">
+      <div style="font-size:18px;font-weight:800;">마이페이지</div>
+      <div class="spacer"></div>
+    </div>
+
+    <!-- 프로필 히어로 -->
+    <div class="profile-hero">
+      <div class="avatar avatar-xl" id="profileAvatar" style="margin:0 auto;">?</div>
+      <div class="profile-name" id="profileName">로딩 중...</div>
+      <div class="profile-handle" id="profileHandle">@0000</div>
+      <div class="trust-score" id="profileTrust">⭐ 신뢰도 100점</div>
+
+      <div class="grid-3" style="margin-top:var(--space-md);gap:8px;">
+        <div style="text-align:center;">
+          <div style="font-size:22px;font-weight:800;color:var(--cc-lime);" id="profileMatchCount">0</div>
+          <div style="font-size:11px;color:var(--cc-gray-400);">참가한 경기</div>
+        </div>
+        <div style="text-align:center;">
+          <div style="font-size:22px;font-weight:800;color:var(--cc-lime);" id="profileHostCount">0</div>
+          <div style="font-size:11px;color:var(--cc-gray-400);">개설한 경기</div>
+        </div>
+        <div style="text-align:center;">
+          <div style="font-size:22px;font-weight:800;color:var(--cc-lime);">0</div>
+          <div style="font-size:11px;color:var(--cc-gray-400);">노쇼</div>
+        </div>
+      </div>
+
+      <div style="margin-top:12px;font-size:11px;color:var(--cc-gray-600);" id="profileJoinDate"></div>
+    </div>
+
+    <!-- 메뉴 -->
+    <div style="padding:var(--space-md);">
+
+      <!-- 내 활동 -->
+      <div class="card" style="overflow:hidden;margin-bottom:var(--space-sm);">
+        <div class="menu-item" onclick="App.navigate('my-matches')">
+          <div class="menu-icon" style="background:rgba(200,255,0,0.1);">🎾</div>
+          <span class="menu-label">내 경기 목록</span>
+          <svg width="16" height="16" fill="none" stroke="var(--cc-gray-600)" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+        <div class="menu-item" onclick="App.navigate('notifications')">
+          <div class="menu-icon" style="background:rgba(61,139,255,0.1);">🔔</div>
+          <span class="menu-label">알림</span>
+          <svg width="16" height="16" fill="none" stroke="var(--cc-gray-600)" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+      </div>
+
+      <!-- 신뢰도 정보 -->
+      <div class="card" style="padding:var(--space-md);margin-bottom:var(--space-sm);">
+        <div style="font-size:12px;color:var(--cc-gray-600);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px;">🛡️ 신뢰도 시스템</div>
+        <div style="font-size:13px;color:var(--cc-gray-400);line-height:1.7;">
+          • 경기 참가 시 <span style="color:var(--cc-lime);font-weight:600;">+5점</span><br>
+          • 호스트로 개설 시 <span style="color:var(--cc-lime);font-weight:600;">+10점</span><br>
+          • 노쇼(무단불참) 시 <span style="color:var(--cc-red);font-weight:600;">-30점</span><br>
+          • 100점 이하 시 신청 제한될 수 있어요
+        </div>
+      </div>
+
+      <!-- 설정 -->
+      <div class="card" style="overflow:hidden;margin-bottom:var(--space-sm);">
+        <div class="menu-item">
+          <div class="menu-icon" style="background:rgba(255,255,255,0.05);">⚙️</div>
+          <span class="menu-label">설정</span>
+          <svg width="16" height="16" fill="none" stroke="var(--cc-gray-600)" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+        <div class="menu-item">
+          <div class="menu-icon" style="background:rgba(255,255,255,0.05);">❓</div>
+          <span class="menu-label">고객센터</span>
+          <svg width="16" height="16" fill="none" stroke="var(--cc-gray-600)" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+      </div>
+
+      <!-- 로그아웃 -->
+      <button class="btn btn-danger btn-full" style="margin-top:8px;" onclick="Auth.logout()">
+        로그아웃
+      </button>
+
+      <div style="text-align:center;margin-top:16px;font-size:11px;color:var(--cc-gray-600);">
+        CourtCall v1.0.0 MVP · made with ❤️ by 차니
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ════════════════════════════════════════════
+       커뮤니티 페이지
+  ════════════════════════════════════════════ -->
+  <div id="page-community" class="page">
+    <div class="top-header">
+      <div style="font-size:20px;font-weight:900;font-family:'Inter',sans-serif;letter-spacing:-0.5px;">
+        커뮤니티
+      </div>
+      <div class="spacer"></div>
+    </div>
+    <div id="communityContent">
+      <!-- JS로 렌더링 -->
+    </div>
+  </div>
+
+
+  <!-- ════════════════════════════════════════════
+       커뮤니티 상세 페이지
+  ════════════════════════════════════════════ -->
+  <div id="page-community-detail" class="page">
+    <div class="top-header">
+      <button class="header-back" data-page="community">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <div class="header-title" id="commDetailTitle">커뮤니티</div>
+      <div style="width:40px;"></div>
+    </div>
+    <div id="communityDetailContent">
+      <!-- JS로 렌더링 -->
+    </div>
+  </div>
+
+
+  <!-- ════════════════════════════════════════════
+       결제 페이지
+  ════════════════════════════════════════════ -->
+  <div id="page-payment" class="page-no-nav">
+    <div class="top-header">
+      <button class="header-back" onclick="history.back()">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <div class="header-title" id="paymentTitle">참가비 송금</div>
+      <div style="width:40px;"></div>
+    </div>
+    <div id="paymentContent">
+      <!-- JS로 렌더링 -->
+    </div>
+  </div>
+
+
+  <!-- ════════════════════════════════════════════
+       바텀 네비게이션
+  ════════════════════════════════════════════ -->
+  <nav class="bottom-nav hidden" id="bottomNav">
+    <div class="nav-item active" data-page="home">
+      <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>
+      <span>홈</span>
+    </div>
+    <div class="nav-item" data-page="community">
+      <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      <span>커뮤니티</span>
+    </div>
+    <div class="nav-item-center" data-page="create-match">
+      <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    </div>
+    <div class="nav-item" data-page="my-matches">
+      <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+      <span>내 경기</span>
+    </div>
+    <div class="nav-item" data-page="profile">
+      <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span>프로필</span>
+    </div>
+  </nav>
+
+</div><!-- /.app-container -->
+
+
+<!-- ════════════════════════════════════════════
+     스크립트
+════════════════════════════════════════════ -->
+<script src="js/app.js"></script>
+<script src="js/pages.js"></script>
+<script>
+// ── 데모 헬퍼 ────────────────────────────────
+const Demo = {
+  quickLogin() {
+    const demoUser = {
+      id: `user_${Date.now()}`,
+      name: '차니',
+      phone: '010-1234-5678',
+      level: '중급',
+      trustScore: 100,
+      matchCount: 0,
+      noShowCount: 0,
+      createdAt: new Date().toISOString()
+    };
+    Auth.login(demoUser);
+    Matches.seedDemoData();
+    Communities.seedDemoData(demoUser.id, demoUser.name);
+    App.addNotification({
+      type: 'created',
+      title: '👋 코트콜에 오신 걸 환영해요!',
+      body: '번개 테니스 경기를 1분 만에 개설하고 관리해보세요 🎾',
+    });
+    App.navigate('home');
+    App.showToast('데모 모드로 시작했어요! 🎾', 'success');
+  },
+
+  kakaoLogin() {
+    // 카카오 OAuth 모킹
+    const kakaoUser = {
+      id: `user_kakao_${Date.now()}`,
+      name: '카카오유저',
+      phone: '010-9999-8888',
+      level: '중급',
+      trustScore: 100,
+      matchCount: 0,
+      noShowCount: 0,
+      createdAt: new Date().toISOString(),
+      loginType: 'kakao'
+    };
+    Auth.login(kakaoUser);
+    Matches.seedDemoData();
+    Communities.seedDemoData(kakaoUser.id, kakaoUser.name);
+    App.navigate('home');
+    App.showToast('카카오로 로그인됐어요! 🎾', 'success');
+  },
+
+  phoneLogin() {
+    const phone = document.getElementById('loginPhone')?.value;
+    const pw    = document.getElementById('loginPw')?.value;
+
+    if (!phone || !pw) {
+      App.showToast('전화번호와 비밀번호를 입력해주세요', 'error');
+      return;
+    }
+
+    const users = Store.get('users') || [];
+    const user = users.find(u => u.phone === phone.replace(/-/g,'') || u.phone === phone);
+    if (!user || user.password !== pw) {
+      // 데모: 없으면 새로 만들기
+      const newUser = {
+        id: `user_${Date.now()}`,
+        name: phone.slice(-4) + '님',
+        phone,
+        level: '중급',
+        trustScore: 100,
+        matchCount: 0,
+        noShowCount: 0,
+        createdAt: new Date().toISOString()
+      };
+      Auth.login(newUser);
+    } else {
+      Auth.login(user);
+    }
+    Matches.seedDemoData();
+    App.navigate('home');
+    App.showToast('로그인됐어요! 🎾', 'success');
+  },
+
+  signup() {
+    const name  = document.getElementById('signupName')?.value?.trim();
+    const phone = document.getElementById('signupPhone')?.value;
+    const pw    = document.getElementById('signupPw')?.value;
+    const level = document.getElementById('signupLevel')?.value;
+
+    if (!name || !phone) {
+      App.showToast('닉네임과 전화번호를 입력해주세요', 'error');
+      return;
+    }
+
+    const user = Auth.register({ name, phone, password: pw, level });
+    if (!user) {
+      App.showToast('이미 가입된 번호예요', 'error');
+      return;
+    }
+    Auth.login(user);
+    Matches.seedDemoData();
+    App.addNotification({
+      type: 'created',
+      title: `🎾 ${name}님, 환영해요!`,
+      body: '코트콜로 번개 테니스를 더 쉽게 즐겨보세요!',
+    });
+    App.navigate('home');
+    App.showToast(`${name}님, 코트콜에 오신 걸 환영해요! 🎾`, 'success');
+  }
+};
+
+// ── 앱 시작 ──────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  // 알림 배지 동기화
+  const updateBothBadges = () => {
+    const count = App.getUnreadCount();
+    const display = count > 0 ? 'block' : 'none';
+    const b1 = document.getElementById('notifBadge');
+    const b2 = document.getElementById('notifBadge2');
+    if (b1) b1.style.display = display;
+    if (b2) b2.style.display = display;
+  };
+  setInterval(updateBothBadges, 2000);
+
+  App.init();
+});
+
+window.Demo = Demo;
+</script>
+
+</body>
+</html>
