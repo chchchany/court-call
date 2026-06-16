@@ -6,11 +6,12 @@
   <title>코트콜 — 번개 테니스 예약 플랫폼</title>
   <meta name="description" content="카카오톡 오픈채팅 번개 테니스 경기를 1분 만에 개설하고, 참가 신청 · N빵 계산 · 카카오페이 결제까지 자동으로!">
   <link rel="stylesheet" href="css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
 
   <style>
     /* 앱 래퍼 */
-    body { background: #D8DAD3; }
-    .app-container { box-shadow: 0 0 40px rgba(30,64,16,0.15); }
+    body { background: #D0D0C8; }
+    .app-container { box-shadow: 0 0 40px rgba(0,0,0,0.15); }
 
     /* 로그인/온보딩 전용 */
     .auth-page-wrap {
@@ -37,7 +38,8 @@
       font-weight: 700;
       padding: 2px 8px;
       border-radius: 999px;
-      background: rgba(255,255,255,0.07);
+      background: rgba(255,255,255,0.1);
+      color: var(--cc-text);
     }
   </style>
 </head>
@@ -46,94 +48,87 @@
 <div class="app-container" id="app">
 
   <!-- ════════════════════════════════════════════
-       온보딩 페이지
+       스플래시 / 온보딩 페이지
   ════════════════════════════════════════════ -->
   <div id="page-onboarding" class="page-no-nav">
-    <div class="onboarding-bg">
-      <div class="onboarding-glow glow-1"></div>
-      <div class="onboarding-glow glow-2"></div>
-      <div class="onboarding-glow glow-3"></div>
-      <div class="court-lines"></div>
-    </div>
+    <div class="splash">
 
-    <div class="onboarding-content">
-      <div>
-        <div class="onboarding-logo">Court<span>Call</span></div>
-        <div class="onboarding-tagline">번개 테니스의 새로운 기준</div>
+      <!-- 코트라인 배경 SVG -->
+      <div class="court-bg">
+        <svg viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+          <rect x="32" y="120" width="326" height="520" rx="4"
+            fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="1.5"/>
+          <line x1="195" y1="120" x2="195" y2="640"
+            stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+          <line x1="32" y1="380" x2="358" y2="380"
+            stroke="rgba(255,255,255,0.08)" stroke-width="1.5"/>
+          <rect x="32" y="240" width="163" height="140" rx="0"
+            fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+          <rect x="195" y="240" width="163" height="140" rx="0"
+            fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+          <rect x="32" y="380" width="163" height="140" rx="0"
+            fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+          <rect x="195" y="380" width="163" height="140" rx="0"
+            fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+          <circle cx="195" cy="380" r="28"
+            fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+          <line x1="32" y1="120" x2="32" y2="640"
+            stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+          <line x1="358" y1="120" x2="358" y2="640"
+            stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+        </svg>
       </div>
 
-      <div class="onboarding-hero">
-        <!-- 떠다니는 경기 카드 미리보기 -->
-        <div class="hero-match-card">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-            <span class="match-status-badge badge-recruiting">모집중</span>
-            <span style="font-size:12px;color:var(--cc-gray-400);">3분 전</span>
-          </div>
-          <div style="font-size:18px;font-weight:800;margin-bottom:8px;">영등포 번개 테니스 🎾</div>
-          <div class="match-info-row" style="font-size:13px;">
-            <svg width="13" height="13" fill="none" stroke="var(--cc-gray-400)" stroke-width="2" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-            영등포 공원 테니스코트
-          </div>
-          <div class="match-info-row" style="font-size:13px;">
-            <svg width="13" height="13" fill="none" stroke="var(--cc-gray-400)" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-            오늘 저녁 7시 · 2시간
-          </div>
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding-top:12px;border-top:1px solid var(--cc-border);">
-            <div style="display:flex;gap:4px;">
-              <div class="slot-dot filled"></div>
-              <div class="slot-dot filled"></div>
-              <div class="slot-dot"></div>
-              <div class="slot-dot"></div>
-            </div>
-            <div style="text-align:right;">
-              <div style="font-size:20px;font-weight:800;font-family:'Inter',sans-serif;color:var(--cc-lime);">19,000원</div>
-              <div style="font-size:10px;color:var(--cc-gray-600);">1인 참가비</div>
-            </div>
-          </div>
-        </div>
+      <!-- 테니스 공 -->
+      <div class="splash-ball"></div>
 
-        <!-- 기능 하이라이트 -->
-        <div style="display:flex;flex-direction:column;gap:12px;margin-top:8px;">
-          <div style="display:flex;align-items:center;gap:12px;">
-            <div style="width:36px;height:36px;background:rgba(200,255,0,0.1);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">⚡</div>
-            <div>
-              <div style="font-size:14px;font-weight:700;">1분 만에 경기 개설</div>
-              <div style="font-size:12px;color:var(--cc-gray-400);">자동 N빵 계산 · 참가자 모집</div>
-            </div>
-          </div>
-          <div style="display:flex;align-items:center;gap:12px;">
-            <div style="width:36px;height:36px;background:rgba(255,232,18,0.1);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">💳</div>
-            <div>
-              <div style="font-size:14px;font-weight:700;">카카오페이 자동 결제</div>
-              <div style="font-size:12px;color:var(--cc-gray-400);">확정 즉시 송금 링크 발송</div>
-            </div>
-          </div>
-          <div style="display:flex;align-items:center;gap:12px;">
-            <div style="width:36px;height:36px;background:rgba(61,139,255,0.1);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">🔔</div>
-            <div>
-              <div style="font-size:14px;font-weight:700;">실시간 대기자 자동 승격</div>
-              <div style="font-size:12px;color:var(--cc-gray-400);">취소 발생 시 즉시 알림</div>
-            </div>
-          </div>
+      <!-- 로고 -->
+      <div class="splash-logo">
+        <div class="splash-logo-sym">
+          <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+            <rect x="1.5" y="1.5" width="15" height="15" rx="2" fill="none" stroke="rgba(200,230,50,0.5)" stroke-width="0.8"/>
+            <line x1="9" y1="1.5" x2="9" y2="16.5" stroke="rgba(200,230,50,0.35)" stroke-width="0.6"/>
+            <line x1="1.5" y1="9" x2="16.5" y2="9" stroke="rgba(200,230,50,0.35)" stroke-width="0.6"/>
+            <circle cx="9" cy="9" r="3" fill="#C8E632"/>
+          </svg>
+        </div>
+        <div class="splash-logo-text">Court<em>Call</em></div>
+      </div>
+
+      <!-- 헤드라인 -->
+      <div class="splash-headline">
+        <div class="splash-h1">코트가<br>기다리고<br><em>있어요.</em></div>
+        <div class="splash-sub">카톡 수작업 없이<br>번개 경기를 1분에 완성</div>
+      </div>
+
+      <!-- 소셜 증명 -->
+      <div class="splash-proof-row">
+        <div class="splash-proof">
+          <div class="splash-proof-num">1.2K+</div>
+          <div class="splash-proof-label">누적<br>경기</div>
+        </div>
+        <div class="splash-proof">
+          <div class="splash-proof-num">4.9★</div>
+          <div class="splash-proof-label">호스트<br>평점</div>
+        </div>
+        <div class="splash-proof">
+          <div class="splash-proof-num">98%</div>
+          <div class="splash-proof-label">참가<br>확정률</div>
         </div>
       </div>
 
-      <div class="onboarding-cta">
-        <button class="btn btn-primary btn-full btn-lg" data-page="signup">
-          무료로 시작하기 →
-        </button>
-        <button class="btn btn-secondary btn-full" data-page="login">
-          이미 계정이 있어요
-        </button>
-        <div style="text-align:center;font-size:11px;color:var(--cc-gray-600);margin-top:4px;">
-          가입 시 <a href="#" style="color:var(--cc-gray-400);text-decoration:underline;">이용약관</a> 및 <a href="#" style="color:var(--cc-gray-400);text-decoration:underline;">개인정보처리방침</a>에 동의합니다
-        </div>
-
-        <!-- 데모 모드 -->
-        <button class="btn btn-secondary btn-full btn-sm" id="demoBtn" style="border-color:rgba(200,255,0,0.3);color:var(--cc-lime);" onclick="Demo.quickLogin()">
-          🎾 데모로 체험하기 (로그인 없이)
-        </button>
+      <!-- CTA -->
+      <div class="splash-cta">
+        <button class="splash-btn-main" data-page="signup">무료로 시작하기 →</button>
+        <button class="splash-btn-ghost" data-page="login">이미 계정이 있어요</button>
+        <button class="splash-btn-demo" id="demoBtn" onclick="Demo.quickLogin()">🎾 데모로 체험하기 (로그인 없이)</button>
       </div>
+
+      <!-- 약관 -->
+      <div class="splash-terms">
+        가입 시 <a href="#">이용약관</a> 및 <a href="#">개인정보처리방침</a>에 동의합니다
+      </div>
+
     </div>
   </div>
 
