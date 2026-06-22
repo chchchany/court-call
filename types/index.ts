@@ -106,3 +106,40 @@ export interface MatchFilterParams {
 }
 
 export type MyMatchTab = 'pending' | 'confirmed' | 'waiting_pool' | 'past';
+
+// ─── Court Drop 기능 타입 ───────────────────────────────────────────────────
+
+export type CourtStatus = '접수중' | '마감' | '안내중';
+
+export interface CourtSlot {
+  id: string;
+  svc_id: string;
+  court_name: string;
+  place_name: string;
+  area: string;
+  start_dt: string | null;
+  end_dt: string | null;
+  status: CourtStatus;
+  svc_url: string | null;
+  last_checked_at: string;
+  created_at: string;
+}
+
+export interface CourtAlertSubscription {
+  id: string;
+  user_id: string;
+  area: string[] | null;
+  court_keywords: string[] | null;
+  days_of_week: number[] | null;  // 0=일, 1=월, ..., 6=토
+  time_start: string | null;      // "HH:mm"
+  time_end: string | null;        // "HH:mm"
+  is_active: boolean;
+  created_at: string;
+}
+
+export interface CourtAlertLog {
+  id: string;
+  user_id: string;
+  svc_id: string;
+  sent_at: string;
+}

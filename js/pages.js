@@ -32,6 +32,7 @@ const Home = {
     const filtered = matches.filter(m => {
       if (this.currentFilter === 'recruiting') return m.status === 'recruiting' || m.status === 'closing';
       if (this.currentFilter === 'confirmed') return m.status === 'confirmed';
+      if (this.currentFilter === 'closed') return m.status === 'closed';
       if (this.currentFilter === 'today') {
         const today = new Date().toISOString().split('T')[0];
         return m.date === today;
@@ -556,7 +557,22 @@ const HostDash = {
     const totalAmount = match.perPersonCost * totalExpected;
     const receivedAmount = match.perPersonCost * paidCount;
 
+    const hostPm = Store.get(`payment_${user.id}`) || {};
+    const hasPaymentInfo = !!(hostPm.kakaoLink || hostPm.accountNumber);
+
     container.innerHTML = `
+      ${!hasPaymentInfo ? `
+      <!-- 결제 수단 미등록 경고 -->
+      <div style="background:rgba(255,112,67,0.1);border:1px solid rgba(255,112,67,0.3);border-radius:0;padding:14px var(--space-md);display:flex;align-items:center;gap:12px;">
+        <div style="font-size:20px;flex-shrink:0;">⚠️</div>
+        <div style="flex:1;">
+          <div style="font-size:13px;font-weight:700;color:#FF7043;margin-bottom:2px;">결제 수단이 등록되지 않았어요</div>
+          <div style="font-size:12px;color:var(--cc-gray-400);">참가자들이 송금할 수 없어요. 카카오페이 링크 또는 계좌를 등록해주세요.</div>
+        </div>
+        <button class="btn btn-sm" style="flex-shrink:0;background:#FF7043;color:#fff;border:none;" onclick="App.navigate('account-settings')">등록하기</button>
+      </div>
+      ` : ''}
+
       <!-- 경기 요약 -->
       <div class="section">
         <div style="font-size:20px;font-weight:800;margin-bottom:4px;">${match.title || match.venue}</div>
@@ -917,18 +933,75 @@ const Payment = {
         </div>
       </div>
 
-      <!-- 결제 버튼 -->
-      <div class="section" style="padding-top:0;">
-        <button class="btn btn-kakao btn-full btn-lg" onclick="Payment.processPayment('${match.id}')">
-          ${Icons.kakao} &nbsp; 카카오페이로 ${Utils.formatCost(match.perPersonCost)} 송금하기
-        </button>
-        <div style="text-align:center;margin-top:12px;font-size:12px;color:var(--cc-gray-600);">
-          이미 송금하셨나요? 아래에서 확인해주세요
+      <!-- 결제 수단 -->
+      ${(() => {
+        const pm = Store.get(`payment_${match.hostId}`) || {};
+        const hasKakao = !!pm.kakaoLink;
+        const hasBank = !!pm.accountNumber;
+
+        let html = '';
+
+        if (hasKakao) {
+          html += `
+          <div class="section" style="padding-top:0;">
+            <button class="btn btn-kakao btn-full btn-lg" onclick="window.open('${pm.kakaoLink}','_blank');Payment.confirmManual('${match.id}')">
+              ${Icons.kakao} &nbsp; 카카오페이로 ${Utils.formatCost(match.perPersonCost)} 송금하기
+            </button>
+          </div>
+          `;
+        }
+
+        if (hasBank) {
+          html += `
+          <div class="section" style="padding-top:0;">
+            <div style="background:rgba(74,222,128,0.05);border:1px solid rgba(74,222,128,0.2);border-radius:12px;padding:var(--space-md);">
+              <div style="font-size:13px;color:#4ADE80;font-weight:700;margin-bottom:12px;">🏦 계좌 이체</div>
+              <div style="display:flex;flex-direction:column;gap:8px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                  <span style="font-size:12px;color:var(--cc-gray-400);">은행</span>
+                  <span style="font-size:14px;font-weight:700;">${pm.bank}</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                  <span style="font-size:12px;color:var(--cc-gray-400);">계좌번호</span>
+                  <span style="font-size:14px;font-weight:700;font-family:'Inter',monospace;letter-spacing:1px;">${pm.accountNumber}</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                  <span style="font-size:12px;color:var(--cc-gray-400);">예금주</span>
+                  <span style="font-size:14px;font-weight:700;">${pm.accountHolder}</span>
+                </div>
+              </div>
+              <button class="btn btn-secondary btn-sm" style="margin-top:14px;width:100%;"
+                onclick="navigator.clipboard?.writeText('${pm.accountNumber}').then(()=>App.showToast('계좌번호가 복사됐어요','success'))">
+                계좌번호 복사
+              </button>
+            </div>
+          </div>
+          `;
+        }
+
+        if (!hasKakao && !hasBank) {
+          html += `
+          <div class="section" style="padding-top:0;">
+            <button class="btn btn-kakao btn-full btn-lg" onclick="Payment.processPayment('${match.id}')">
+              ${Icons.kakao} &nbsp; 카카오페이로 ${Utils.formatCost(match.perPersonCost)} 송금하기
+            </button>
+          </div>
+          `;
+        }
+
+        html += `
+        <div class="section" style="padding-top:0;">
+          <div style="text-align:center;margin-bottom:10px;font-size:12px;color:var(--cc-gray-600);">
+            이미 송금하셨나요?
+          </div>
+          <button class="btn btn-secondary btn-full" onclick="Payment.confirmManual('${match.id}')">
+            ✅ 송금했어요 (수동 확인)
+          </button>
         </div>
-        <button class="btn btn-secondary btn-full" style="margin-top:8px;" onclick="Payment.confirmManual('${match.id}')">
-          ✅ 송금했어요 (수동 확인)
-        </button>
-      </div>
+        `;
+
+        return html;
+      })()}
 
       <div style="height:40px;"></div>
     `;
@@ -1289,6 +1362,172 @@ const CommunityDetail = {
   }
 };
 
+// ── 결제 수단 관리 ───────────────────────────
+const AccountSettings = {
+  BANKS: ['국민은행', '신한은행', '우리은행', '하나은행', '농협은행', '기업은행', '카카오뱅크', '토스뱅크', 'SC제일은행', '씨티은행', '새마을금고', '수협은행'],
+
+  get(userId) {
+    return Store.get(`payment_${userId}`) || {};
+  },
+
+  render() {
+    const user = App.currentUser;
+    if (!user) { App.navigate('login'); return; }
+
+    const pm = this.get(user.id);
+    const container = document.getElementById('accountSettingsContent');
+    if (!container) return;
+
+    const bankOptions = this.BANKS.map(b =>
+      `<option value="${b}" ${pm.bank === b ? 'selected' : ''}>${b}</option>`
+    ).join('');
+
+    container.innerHTML = `
+      <div style="padding:var(--space-md);">
+
+        <!-- ① 카카오페이 송금 링크 -->
+        <div style="font-size:12px;color:var(--cc-gray-600);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">💛 카카오페이 송금 링크</div>
+        <div class="card" style="padding:var(--space-md);margin-bottom:var(--space-md);">
+          ${pm.kakaoLink ? `
+          <div style="background:rgba(255,232,18,0.08);border:1px solid rgba(255,232,18,0.25);border-radius:10px;padding:12px;margin-bottom:14px;display:flex;align-items:center;gap:10px;">
+            <div style="font-size:20px;flex-shrink:0;">✅</div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:12px;color:var(--cc-kakao);font-weight:700;margin-bottom:2px;">등록됨</div>
+              <div style="font-size:11px;color:var(--cc-gray-400);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${pm.kakaoLink}</div>
+            </div>
+            <button class="btn btn-danger btn-sm" onclick="AccountSettings.removeKakao()" style="flex-shrink:0;">삭제</button>
+          </div>
+          ` : ''}
+          <div class="form-group" style="margin-bottom:10px;">
+            <label class="form-label">${pm.kakaoLink ? '링크 변경' : '송금 링크 URL'}</label>
+            <input type="url" id="kakao_link" class="form-input"
+              placeholder="https://qr.kakaopay.com/..."
+              value="${pm.kakaoLink || ''}">
+          </div>
+          <div style="background:rgba(255,232,18,0.05);border-radius:8px;padding:10px 12px;margin-bottom:12px;">
+            <div style="font-size:12px;color:var(--cc-kakao);font-weight:700;margin-bottom:4px;">링크 가져오는 방법</div>
+            <div style="font-size:12px;color:var(--cc-gray-400);line-height:1.7;">
+              카카오페이 앱 → 송금 → 내 송금 링크 → 링크 복사
+            </div>
+          </div>
+          <button class="btn btn-kakao btn-full" onclick="AccountSettings.saveKakao()">
+            카카오페이 링크 저장
+          </button>
+        </div>
+
+        <!-- ② 계좌 이체 -->
+        <div style="font-size:12px;color:var(--cc-gray-600);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">🏦 계좌 이체 정보</div>
+        <div class="card" style="padding:var(--space-md);margin-bottom:var(--space-md);">
+          ${pm.accountNumber ? `
+          <div style="background:rgba(74,222,128,0.05);border:1px solid rgba(74,222,128,0.2);border-radius:10px;padding:12px;margin-bottom:14px;">
+            <div style="font-size:12px;color:#4ADE80;font-weight:700;margin-bottom:8px;">✅ 등록된 계좌</div>
+            <div style="font-size:15px;font-weight:700;">${pm.bank}</div>
+            <div style="font-size:14px;font-family:'Inter',monospace;letter-spacing:1px;margin-top:4px;">${pm.accountNumber}</div>
+            <div style="font-size:12px;color:var(--cc-gray-400);margin-top:4px;">예금주 ${pm.accountHolder}</div>
+          </div>
+          ` : ''}
+          <div class="form-group">
+            <label class="form-label">은행</label>
+            <select id="acct_bank" class="form-input">
+              <option value="">은행 선택</option>
+              ${bankOptions}
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">계좌번호</label>
+            <input type="text" id="acct_number" class="form-input"
+              placeholder="예: 1234-56-7890123"
+              value="${pm.accountNumber || ''}"
+              inputmode="numeric">
+          </div>
+          <div class="form-group">
+            <label class="form-label">예금주</label>
+            <input type="text" id="acct_holder" class="form-input"
+              placeholder="이름을 입력해주세요"
+              value="${pm.accountHolder || ''}">
+          </div>
+          <button class="btn btn-primary btn-full" onclick="AccountSettings.saveBank()">
+            계좌 정보 저장
+          </button>
+          ${pm.accountNumber ? `
+          <button class="btn btn-danger btn-full" style="margin-top:8px;" onclick="AccountSettings.removeBank()">
+            계좌 삭제
+          </button>
+          ` : ''}
+        </div>
+
+        <!-- 안내 -->
+        <div class="card" style="padding:var(--space-md);">
+          <div style="font-size:12px;color:var(--cc-gray-600);font-weight:700;margin-bottom:8px;">💡 안내</div>
+          <div style="font-size:13px;color:var(--cc-gray-400);line-height:1.8;">
+            • 카카오페이 링크 등록 시 참가자가 버튼 하나로 바로 송금 가능해요<br>
+            • 계좌 이체 정보는 카카오페이가 없는 참가자를 위한 백업 수단이에요<br>
+            • 둘 다 등록하면 결제 화면에 모두 표시돼요
+          </div>
+        </div>
+
+        <div style="height:24px;"></div>
+      </div>
+    `;
+  },
+
+  saveKakao() {
+    const user = App.currentUser;
+    if (!user) return;
+    const link = document.getElementById('kakao_link')?.value?.trim();
+    if (!link) { App.showToast('링크를 입력해주세요', 'error'); return; }
+    if (!link.startsWith('http')) { App.showToast('올바른 URL을 입력해주세요', 'error'); return; }
+    const pm = this.get(user.id);
+    pm.kakaoLink = link;
+    Store.set(`payment_${user.id}`, pm);
+    App.showToast('✅ 카카오페이 링크가 저장됐어요', 'success');
+    this.render();
+  },
+
+  removeKakao() {
+    if (!confirm('카카오페이 링크를 삭제할까요?')) return;
+    const user = App.currentUser;
+    if (!user) return;
+    const pm = this.get(user.id);
+    delete pm.kakaoLink;
+    Store.set(`payment_${user.id}`, pm);
+    App.showToast('카카오페이 링크가 삭제됐어요', 'info');
+    this.render();
+  },
+
+  saveBank() {
+    const user = App.currentUser;
+    if (!user) return;
+    const bank = document.getElementById('acct_bank')?.value;
+    const accountNumber = document.getElementById('acct_number')?.value?.trim();
+    const accountHolder = document.getElementById('acct_holder')?.value?.trim();
+    if (!bank || !accountNumber || !accountHolder) {
+      App.showToast('모든 항목을 입력해주세요', 'error');
+      return;
+    }
+    const pm = this.get(user.id);
+    pm.bank = bank;
+    pm.accountNumber = accountNumber;
+    pm.accountHolder = accountHolder;
+    Store.set(`payment_${user.id}`, pm);
+    App.showToast('✅ 계좌 정보가 저장됐어요', 'success');
+    this.render();
+  },
+
+  removeBank() {
+    if (!confirm('계좌 정보를 삭제할까요?')) return;
+    const user = App.currentUser;
+    if (!user) return;
+    const pm = this.get(user.id);
+    delete pm.bank;
+    delete pm.accountNumber;
+    delete pm.accountHolder;
+    Store.set(`payment_${user.id}`, pm);
+    App.showToast('계좌 정보가 삭제됐어요', 'info');
+    this.render();
+  }
+};
+
 window.Home = Home;
 window.MatchDetail = MatchDetail;
 window.CreateMatch = CreateMatch;
@@ -1299,3 +1538,4 @@ window.Profile = Profile;
 window.Payment = Payment;
 window.Community = Community;
 window.CommunityDetail = CommunityDetail;
+window.AccountSettings = AccountSettings;

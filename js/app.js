@@ -7,6 +7,8 @@ const App = {
   currentPage: null,
   currentUser: null,
   notifications: [],
+  historyStack: [],
+  currentData: {},
 
   init() {
     this.currentUser = Auth.getCurrentUser();
@@ -19,7 +21,13 @@ const App = {
     this.navigate(page);
   },
 
-  navigate(pageId, data = {}) {
+  navigate(pageId, data = {}, pushHistory = true) {
+    // 히스토리 스택에 현재 페이지 push
+    if (pushHistory && this.currentPage && this.currentPage !== pageId) {
+      this.historyStack.push({ page: this.currentPage, data: this.currentData });
+    }
+    this.currentData = data;
+
     // 모든 페이지 숨기기
     document.querySelectorAll('.page, .page-no-nav').forEach(p => {
       p.classList.remove('active');
@@ -45,6 +53,15 @@ const App = {
     }
   },
 
+  goBack() {
+    if (this.historyStack.length > 0) {
+      const prev = this.historyStack.pop();
+      this.navigate(prev.page, prev.data, false);
+    } else {
+      this.navigate('home', {}, false);
+    }
+  },
+
   renderPage(pageId, data) {
     switch(pageId) {
       case 'home':              Home.render(); break;
@@ -57,6 +74,7 @@ const App = {
       case 'payment':           Payment.render(data); break;
       case 'community':         Community.render(); break;
       case 'community-detail':  CommunityDetail.render(data); break;
+      case 'account-settings':  AccountSettings.render(); break;
     }
   },
 
@@ -314,96 +332,198 @@ const Matches = {
     };
   },
 
+  SEED_VERSION: 'v4',
+
   seedDemoData() {
-    if (this.getAll().length > 0) return;
+    if (Store.get('seed_version') === this.SEED_VERSION) return;
+
+    const n = Date.now();
+    const d = 86400000;
 
     const demoMatches = [
+      // ① 차니 개설 · 모집중 (1/6)
       {
         id: 'match_demo1',
-        hostId: 'user_demo',
-        hostName: '차니',
-        title: '영등포 번개 테니스 🎾',
-        venue: '영등포 공원 테니스코트',
-        address: '서울시 영등포구 여의도동 44',
-        date: '2026-06-17',
-        time: '19:00',
-        duration: 120,
-        maxPlayers: 4,
-        totalCost: 76000,
-        perPersonCost: 19000,
-        level: '중급',
-        genderType: 'open',
-        communityId: 'comm_demo1',
-        note: '라켓 지참 필수! 공은 준비되어 있어요 🎾',
+        hostId: 'user_demo', hostName: '차니',
+        title: '노들섬 주말 번개 테니스',
+        venue: '노들섬 테니스코트', address: '서울시 용산구 이촌동 302',
+        date: '2026-06-28', time: '15:00', duration: 120,
+        maxPlayers: 6, totalCost: 108000, perPersonCost: 18000,
+        level: '중급', genderType: 'open', communityId: 'comm_demo1',
+        note: '주말 오후 여유롭게! 라켓 지참 필수',
         status: 'recruiting',
-        createdAt: new Date(Date.now() - 3600000).toISOString(),
+        createdAt: new Date(n - 1800000).toISOString(),
         participants: [
-          { userId: 'user_demo', userName: '차니', appliedAt: new Date(Date.now() - 3600000).toISOString(), confirmed: true }
+          { userId: 'user_demo', userName: '차니', appliedAt: new Date(n - 1800000).toISOString(), confirmed: true }
         ],
-        waitlist: [],
-        paymentStatus: {}
+        waitlist: [], paymentStatus: {}
       },
+      // ② 차니 개설 · 마감 임박 (4/5) — 참가신청자 여러 명
       {
         id: 'match_demo2',
-        hostId: 'user_demo2',
-        hostName: '테니스왕',
-        title: '강남 저녁 번개 🌙',
-        venue: '강남 구민체육센터',
-        address: '서울시 강남구 논현동 11',
-        date: '2026-06-18',
-        time: '20:00',
-        duration: 90,
-        maxPlayers: 6,
-        totalCost: 120000,
-        perPersonCost: 20000,
-        level: '초중급',
-        genderType: 'mixed',
-        communityId: 'comm_demo2',
-        note: '초보자도 환영! 같이 즐겁게 쳐요 😊',
+        hostId: 'user_demo', hostName: '차니',
+        title: '여의도 저녁 번개',
+        venue: '한강공원 여의도 테니스코트', address: '서울시 영등포구 여의도동',
+        date: '2026-06-20', time: '19:30', duration: 90,
+        maxPlayers: 5, totalCost: 75000, perPersonCost: 15000,
+        level: '초중급', genderType: 'open', communityId: 'comm_demo1',
+        note: '초보자 환영! 신청 서둘러요',
         status: 'closing',
-        createdAt: new Date(Date.now() - 7200000).toISOString(),
+        createdAt: new Date(n - 7200000).toISOString(),
         participants: [
-          { userId: 'user_demo2', userName: '테니스왕', appliedAt: new Date().toISOString(), confirmed: true },
-          { userId: 'u2', userName: '서울러', appliedAt: new Date().toISOString(), confirmed: false },
-          { userId: 'u3', userName: '라켓맨', appliedAt: new Date().toISOString(), confirmed: false },
-          { userId: 'u4', userName: '스매시퀸', appliedAt: new Date().toISOString(), confirmed: false },
-          { userId: 'u5', userName: '드라이버', appliedAt: new Date().toISOString(), confirmed: false }
+          { userId: 'user_demo',  userName: '차니',     appliedAt: new Date(n - 7200000).toISOString(), confirmed: true  },
+          { userId: 'u2',         userName: '서울러',   appliedAt: new Date(n - 6000000).toISOString(), confirmed: false },
+          { userId: 'u3',         userName: '라켓맨',   appliedAt: new Date(n - 5000000).toISOString(), confirmed: false },
+          { userId: 'u4',         userName: '스매시퀸', appliedAt: new Date(n - 4000000).toISOString(), confirmed: false }
+        ],
+        waitlist: [], paymentStatus: {}
+      },
+      // ③ 차니 개설 · 마감 (4/4) + 대기자 2명
+      {
+        id: 'match_demo3',
+        hostId: 'user_demo', hostName: '차니',
+        title: '마포 번개 (마감)',
+        venue: '망원 테니스코트', address: '서울시 마포구 망원동 468',
+        date: '2026-06-21', time: '10:00', duration: 120,
+        maxPlayers: 4, totalCost: 80000, perPersonCost: 20000,
+        level: '중급', genderType: 'mixed', communityId: 'comm_demo1',
+        note: '주말 오전 번개! 마감됐어요',
+        status: 'closed',
+        createdAt: new Date(n - d).toISOString(),
+        participants: [
+          { userId: 'user_demo', userName: '차니',     appliedAt: new Date(n - d).toISOString(),       confirmed: true  },
+          { userId: 'u2',        userName: '서울러',   appliedAt: new Date(n - d + 3600000).toISOString(), confirmed: false },
+          { userId: 'u3',        userName: '라켓맨',   appliedAt: new Date(n - d + 7200000).toISOString(), confirmed: false },
+          { userId: 'u5',        userName: '드라이버', appliedAt: new Date(n - d + 9000000).toISOString(), confirmed: false }
         ],
         waitlist: [
-          { userId: 'u6', userName: '대기자1', appliedAt: new Date().toISOString(), waitPosition: 1 }
+          { userId: 'u6', userName: '대기자A', appliedAt: new Date(n - d + 10000000).toISOString(), waitPosition: 1 },
+          { userId: 'u7', userName: '대기자B', appliedAt: new Date(n - d + 11000000).toISOString(), waitPosition: 2 }
         ],
         paymentStatus: {}
       },
+      // ④ 차니 개설 · 확정 (과거 경기, 4/4, 입금 완료)
       {
-        id: 'match_demo3',
-        hostId: 'user_demo3',
-        hostName: '코트퀸',
-        title: '송파 주말 아침 테니스',
-        venue: '석촌호수 테니스코트',
-        address: '서울시 송파구 석촌동 5',
-        date: '2026-06-21',
-        time: '08:00',
-        duration: 120,
-        maxPlayers: 4,
-        totalCost: 60000,
-        perPersonCost: 15000,
-        level: '상급',
-        genderType: 'female',
-        note: '상급자 우선 모집, 레이팅 3.5 이상 권장',
+        id: 'match_demo4',
+        hostId: 'user_demo', hostName: '차니',
+        title: '영등포 번개 (확정)',
+        venue: '영등포 공원 테니스코트', address: '서울시 영등포구 여의도동 44',
+        date: '2026-06-14', time: '19:00', duration: 120,
+        maxPlayers: 4, totalCost: 80000, perPersonCost: 20000,
+        level: '중급', genderType: 'open', communityId: 'comm_demo1',
+        note: '지난 번개 경기',
         status: 'confirmed',
-        createdAt: new Date(Date.now() - 86400000).toISOString(),
+        createdAt: new Date(n - d * 7).toISOString(),
         participants: [
-          { userId: 'user_demo3', userName: '코트퀸', appliedAt: new Date().toISOString(), confirmed: true },
-          { userId: 'u7', userName: '에이스', appliedAt: new Date().toISOString(), confirmed: true },
-          { userId: 'u8', userName: '발리킹', appliedAt: new Date().toISOString(), confirmed: true },
-          { userId: 'u9', userName: '서브퀸', appliedAt: new Date().toISOString(), confirmed: true }
+          { userId: 'user_demo', userName: '차니',     appliedAt: new Date(n - d * 7).toISOString(), confirmed: true },
+          { userId: 'u2',        userName: '서울러',   appliedAt: new Date(n - d * 6).toISOString(), confirmed: true },
+          { userId: 'u3',        userName: '라켓맨',   appliedAt: new Date(n - d * 6).toISOString(), confirmed: true },
+          { userId: 'u4',        userName: '스매시퀸', appliedAt: new Date(n - d * 5).toISOString(), confirmed: true }
         ],
         waitlist: [],
-        paymentStatus: { 'user_demo3': true, 'u7': true, 'u8': false, 'u9': false }
+        paymentStatus: { 'user_demo': true, 'u2': true, 'u3': true, 'u4': true }
+      },
+      // ⑤ 테니스왕 개설 · 마감 임박 · 차니 참가중 (5/6)
+      {
+        id: 'match_demo5',
+        hostId: 'user_demo2', hostName: '테니스왕',
+        title: '강남 저녁 번개',
+        venue: '강남 구민체육센터', address: '서울시 강남구 논현동 11',
+        date: '2026-06-22', time: '19:30', duration: 90,
+        maxPlayers: 6, totalCost: 120000, perPersonCost: 20000,
+        level: '초중급', genderType: 'open', communityId: 'comm_demo2',
+        note: '초보자도 환영!',
+        status: 'closing',
+        createdAt: new Date(n - d * 3).toISOString(),
+        participants: [
+          { userId: 'user_demo2', userName: '테니스왕', appliedAt: new Date(n - d * 3).toISOString(),     confirmed: true  },
+          { userId: 'user_demo',  userName: '차니',     appliedAt: new Date(n - d * 2).toISOString(),     confirmed: false },
+          { userId: 'u2',         userName: '서울러',   appliedAt: new Date(n - d * 2 + 3600000).toISOString(), confirmed: false },
+          { userId: 'u3',         userName: '라켓맨',   appliedAt: new Date(n - d + 3600000).toISOString(),     confirmed: false },
+          { userId: 'u4',         userName: '스매시퀸', appliedAt: new Date(n - 72000000).toISOString(),         confirmed: false }
+        ],
+        waitlist: [], paymentStatus: {}
+      },
+      // ⑥ 테니스왕 개설 · 마감 · 차니 대기 1번 (4/4 + 대기 2명)
+      {
+        id: 'match_demo6',
+        hostId: 'user_demo2', hostName: '테니스왕',
+        title: '반포 번개 (마감 + 대기)',
+        venue: '반포한강공원 테니스코트', address: '서울시 서초구 반포동',
+        date: '2026-06-25', time: '18:00', duration: 120,
+        maxPlayers: 4, totalCost: 80000, perPersonCost: 20000,
+        level: '중급', genderType: 'open',
+        note: '자리 나면 연락드려요',
+        status: 'closed',
+        createdAt: new Date(n - d * 4).toISOString(),
+        participants: [
+          { userId: 'user_demo2', userName: '테니스왕', appliedAt: new Date(n - d * 4).toISOString(), confirmed: true  },
+          { userId: 'u2',         userName: '서울러',   appliedAt: new Date(n - d * 3).toISOString(), confirmed: false },
+          { userId: 'u3',         userName: '라켓맨',   appliedAt: new Date(n - d * 3).toISOString(), confirmed: false },
+          { userId: 'u4',         userName: '스매시퀸', appliedAt: new Date(n - d * 2).toISOString(), confirmed: false }
+        ],
+        waitlist: [
+          { userId: 'user_demo', userName: '차니',    appliedAt: new Date(n - d).toISOString(),          waitPosition: 1 },
+          { userId: 'u5',        userName: '드라이버', appliedAt: new Date(n - d + 3600000).toISOString(), waitPosition: 2 }
+        ],
+        paymentStatus: {}
+      },
+      // ⑦ 코트퀸 개설 · 확정 · 4/4 입금중
+      {
+        id: 'match_demo7',
+        hostId: 'user_demo3', hostName: '코트퀸',
+        title: '송파 주말 아침 테니스',
+        venue: '석촌호수 테니스코트', address: '서울시 송파구 석촌동 5',
+        date: '2026-06-21', time: '08:00', duration: 120,
+        maxPlayers: 4, totalCost: 60000, perPersonCost: 15000,
+        level: '상급', genderType: 'female',
+        note: '상급자 우선 모집',
+        status: 'confirmed',
+        createdAt: new Date(n - d * 2).toISOString(),
+        participants: [
+          { userId: 'user_demo3', userName: '코트퀸', appliedAt: new Date(n - d * 2).toISOString(), confirmed: true },
+          { userId: 'u8',         userName: '에이스', appliedAt: new Date(n - d).toISOString(),     confirmed: true },
+          { userId: 'u9',         userName: '발리킹', appliedAt: new Date(n - d).toISOString(),     confirmed: true },
+          { userId: 'u10',        userName: '서브퀸', appliedAt: new Date(n - d).toISOString(),     confirmed: true }
+        ],
+        waitlist: [],
+        paymentStatus: { 'user_demo3': true, 'u8': true, 'u9': false, 'u10': false }
+      },
+      // ⑧ 서울러 개설 · 모집중 (comm_demo1 소속)
+      {
+        id: 'match_demo8',
+        hostId: 'u2', hostName: '서울러',
+        title: '영등포 아침 번개',
+        venue: '영등포 공원 테니스코트', address: '서울시 영등포구 여의도동 44',
+        date: '2026-06-19', time: '07:00', duration: 90,
+        maxPlayers: 4, totalCost: 60000, perPersonCost: 15000,
+        level: '초급', genderType: 'open', communityId: 'comm_demo1',
+        note: '이른 아침 번개 조아',
+        status: 'recruiting',
+        createdAt: new Date(n - 3600000 * 2).toISOString(),
+        participants: [
+          { userId: 'u2', userName: '서울러', appliedAt: new Date(n - 3600000 * 2).toISOString(), confirmed: true }
+        ],
+        waitlist: [], paymentStatus: {}
       }
     ];
 
     Store.set('matches', demoMatches);
+    Store.set('seed_version', this.SEED_VERSION);
+
+    // 결제 수단 시딩
+    Store.set('payment_user_demo2', {
+      kakaoLink: 'https://qr.kakaopay.com/FZHx2L3Kv',
+      bank: '카카오뱅크',
+      accountNumber: '3333-01-1234567',
+      accountHolder: '테니스왕'
+    });
+    Store.set('payment_user_demo3', {
+      kakaoLink: 'https://qr.kakaopay.com/Ej8nR9mQp',
+      bank: '신한은행',
+      accountNumber: '110-123-456789',
+      accountHolder: '코트퀸'
+    });
   }
 };
 
@@ -508,7 +628,7 @@ const Communities = {
   },
 
   seedDemoData(userId, userName) {
-    if (this.getAll().length > 0) return;
+    if (Store.get('seed_version') === Matches.SEED_VERSION && this.getAll().length > 0) return;
     const demos = [
       {
         id: 'comm_demo1',
