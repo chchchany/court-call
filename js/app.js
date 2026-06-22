@@ -75,6 +75,7 @@ const App = {
       case 'community':         Community.render(); break;
       case 'community-detail':  CommunityDetail.render(data); break;
       case 'account-settings':  AccountSettings.render(); break;
+      case 'court-alert':       CourtAlert.render(); break;
     }
   },
 

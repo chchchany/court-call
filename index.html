@@ -540,6 +540,11 @@
           <span class="menu-label">알림</span>
           <svg width="16" height="16" fill="none" stroke="var(--cc-gray-600)" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
         </div>
+        <div class="menu-item" onclick="App.navigate('court-alert')">
+          <div class="menu-icon" style="background:rgba(200,255,0,0.08);">🎾</div>
+          <span class="menu-label">코트 취소 알림 설정</span>
+          <svg width="16" height="16" fill="none" stroke="var(--cc-gray-600)" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
         <div class="menu-item" onclick="App.navigate('account-settings')">
           <div class="menu-icon" style="background:rgba(74,222,128,0.1);">🏦</div>
           <span class="menu-label">결제 수단 관리</span>
@@ -647,6 +652,27 @@
     </div>
     <div id="accountSettingsContent">
       <!-- JS로 렌더링 -->
+    </div>
+  </div>
+
+
+  <!-- ════════════════════════════════════════════
+       코트 취소 알림 설정 페이지
+  ════════════════════════════════════════════ -->
+  <div id="page-court-alert" class="page">
+    <div class="top-header">
+      <button class="header-back" onclick="App.goBack()">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <div class="header-title">코트 취소 알림</div>
+      <div style="width:40px;"></div>
+    </div>
+    <div id="courtAlertContent" style="padding-top:4px;padding-bottom:80px;">
+      <div style="padding:16px;">
+        <div class="skeleton" style="height:72px;border-radius:14px;margin-bottom:12px;"></div>
+        <div class="skeleton" style="height:300px;border-radius:14px;margin-bottom:12px;"></div>
+        <div class="skeleton" style="height:80px;border-radius:14px;"></div>
+      </div>
     </div>
   </div>
 

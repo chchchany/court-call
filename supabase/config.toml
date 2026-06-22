@@ -36,3 +36,6 @@ enable_anonymous_sign_ins = false
 
 [functions.court-poller]
 verify_jwt = false
+
+[functions.ycs-poller]
+verify_jwt = false

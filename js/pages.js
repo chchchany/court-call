@@ -1528,6 +1528,362 @@ const AccountSettings = {
   }
 };
 
+// ── 코트 취소 알림 설정 ───────────────────────────
+const CourtAlert = {
+  _state: {
+    alertOn: true,
+    courts: [],
+    loading: false,
+    error: null,
+    search: '',
+    areaFilter: [],
+    selectedIds: [],
+    days: [],
+    timeStart: '07:00',
+    timeEnd: '22:00',
+  },
+
+  AREAS: ['강남구','강동구','강서구','관악구','광진구','구로구','노원구','도봉구','동대문구','동작구','마포구','서대문구','서초구','성동구','성북구','송파구','양천구','영등포구','용산구','은평구','종로구','중구'],
+  DAYS: ['일','월','화','수','목','금','토'],
+  TIME_OPTIONS: ['06:00','07:00','08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00','22:00'],
+
+  DEMO_COURTS: [
+    { svc_id:'S001', court_name:'잠실 한강공원 테니스장',     place_name:'잠실한강공원',      area:'송파구',   status:'접수중',  start_dt:'2026-06-28 09:00:00', svc_url:'https://yeyak.seoul.go.kr' },
+    { svc_id:'S002', court_name:'여의도 한강공원 테니스장',    place_name:'여의도한강공원',     area:'영등포구', status:'접수마감', start_dt:'2026-06-22 07:00:00', svc_url:'https://yeyak.seoul.go.kr' },
+    { svc_id:'S003', court_name:'반포 한강공원 테니스장',      place_name:'반포한강공원',       area:'서초구',   status:'접수중',  start_dt:'2026-06-29 10:00:00', svc_url:'https://yeyak.seoul.go.kr' },
+    { svc_id:'S004', court_name:'뚝섬 한강공원 테니스장',      place_name:'뚝섬한강공원',       area:'광진구',   status:'접수마감', start_dt:'2026-06-23 19:00:00', svc_url:'https://yeyak.seoul.go.kr' },
+    { svc_id:'S005', court_name:'망원 한강공원 테니스장',      place_name:'망원한강공원',       area:'마포구',   status:'접수중',  start_dt:'2026-06-25 18:00:00', svc_url:'https://yeyak.seoul.go.kr' },
+    { svc_id:'S006', court_name:'목동 종합운동장 테니스장',    place_name:'목동종합운동장',     area:'양천구',   status:'예약불가', start_dt:'2026-06-24 09:00:00', svc_url:'https://yeyak.seoul.go.kr' },
+    { svc_id:'S007', court_name:'광나루 한강공원 테니스장',    place_name:'광나루한강공원',     area:'광진구',   status:'접수중',  start_dt:'2026-06-27 07:00:00', svc_url:'https://yeyak.seoul.go.kr' },
+    { svc_id:'S008', court_name:'노원 공릉 테니스장',          place_name:'노원구민체육센터',   area:'노원구',   status:'접수마감', start_dt:'2026-06-22 20:00:00', svc_url:'https://yeyak.seoul.go.kr' },
+    { svc_id:'S009', court_name:'강서 한강공원 테니스장',      place_name:'강서한강공원',       area:'강서구',   status:'접수중',  start_dt:'2026-06-23 10:00:00', svc_url:'https://yeyak.seoul.go.kr' },
+    { svc_id:'S010', court_name:'용산 가족공원 테니스장',      place_name:'용산가족공원',       area:'용산구',   status:'접수마감', start_dt:'2026-06-26 18:00:00', svc_url:'https://yeyak.seoul.go.kr' },
+    { svc_id:'S011', court_name:'성동구 테니스장',             place_name:'성동구민체육센터',   area:'성동구',   status:'접수중',  start_dt:'2026-06-28 07:00:00', svc_url:'https://yeyak.seoul.go.kr' },
+    { svc_id:'S012', court_name:'강남 구민체육센터 테니스장',  place_name:'강남구민체육센터',   area:'강남구',   status:'접수마감', start_dt:'2026-06-22 19:00:00', svc_url:'https://yeyak.seoul.go.kr' },
+    { svc_id:'S013', court_name:'서초 학생체육관 테니스장',    place_name:'서초학생체육관',     area:'서초구',   status:'접수중',  start_dt:'2026-06-29 08:00:00', svc_url:'https://yeyak.seoul.go.kr' },
+    { svc_id:'S014', court_name:'은평 체육문화센터 테니스장',  place_name:'은평체육문화센터',   area:'은평구',   status:'접수마감', start_dt:'2026-06-25 07:00:00', svc_url:'https://yeyak.seoul.go.kr' },
+    { svc_id:'S015', court_name:'서대문구 테니스장',           place_name:'서대문구민체육센터', area:'서대문구', status:'접수중',  start_dt:'2026-06-27 20:00:00', svc_url:'https://yeyak.seoul.go.kr' },
+    { svc_id:'S016', court_name:'마포 체육관 테니스장',        place_name:'마포구민체육관',     area:'마포구',   status:'접수마감', start_dt:'2026-06-26 09:00:00', svc_url:'https://yeyak.seoul.go.kr' },
+    { svc_id:'S017', court_name:'도봉구 방학 테니스장',        place_name:'방학체육관',         area:'도봉구',   status:'접수중',  start_dt:'2026-06-28 18:00:00', svc_url:'https://yeyak.seoul.go.kr' },
+    { svc_id:'S018', court_name:'동작구 테니스장',             place_name:'동작구민체육센터',   area:'동작구',   status:'접수마감', start_dt:'2026-06-23 20:00:00', svc_url:'https://yeyak.seoul.go.kr' },
+    { svc_id:'S019', court_name:'관악구 봉천 테니스장',        place_name:'관악구민체육센터',   area:'관악구',   status:'접수중',  start_dt:'2026-06-30 09:00:00', svc_url:'https://yeyak.seoul.go.kr' },
+    { svc_id:'S020', court_name:'강동구 테니스장',             place_name:'강동구민체육관',     area:'강동구',   status:'접수마감', start_dt:'2026-06-24 19:00:00', svc_url:'https://yeyak.seoul.go.kr' },
+  ],
+
+  async render() {
+    this._loadSettings();
+    if (!this._state.courts.length) {
+      this._state.loading = true;
+      this._renderContent();
+      await this._fetchCourts();
+      this._state.loading = false;
+    }
+    this._renderContent();
+  },
+
+  _loadSettings() {
+    const s  = Store.get('court_alert') || {};
+    const st = this._state;
+    st.alertOn     = s.alertOn     ?? true;
+    st.selectedIds = s.selectedIds ?? [];
+    st.days        = s.days        ?? [];
+    st.timeStart   = s.timeStart   ?? '07:00';
+    st.timeEnd     = s.timeEnd     ?? '22:00';
+  },
+
+  saveSettings() {
+    const st = this._state;
+    Store.set('court_alert', {
+      alertOn:     st.alertOn,
+      selectedIds: st.selectedIds,
+      days:        st.days,
+      timeStart:   st.timeStart,
+      timeEnd:     st.timeEnd,
+    });
+    App.addNotification({
+      type: 'info',
+      title: '🔔 코트 취소 알림 설정 완료',
+      body: '조건에 맞는 취소 자리가 생기면 알림을 드릴게요!',
+    });
+    App.showToast('알림 설정이 저장됐어요! 취소 자리가 나면 알려드릴게요 🎾', 'success');
+  },
+
+  async _fetchCourts() {
+    const apiKey = Store.get('seoul_api_key');
+    if (!apiKey) {
+      this._state.courts = this.DEMO_COURTS;
+      this._state.error  = 'demo';
+      return;
+    }
+    try {
+      const seoulUrl = `http://openapi.seoul.go.kr:8088/${apiKey}/json/ListPublicReservationSport/1/500/테니스`;
+      const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(seoulUrl)}`;
+      const ctrl     = new AbortController();
+      const tid      = setTimeout(() => ctrl.abort(), 8000);
+      const res      = await fetch(proxyUrl, { signal: ctrl.signal });
+      clearTimeout(tid);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      const rows = data?.ListPublicReservationSport?.row ?? [];
+      if (!rows.length) throw new Error('빈 응답');
+      this._state.courts = rows.map(r => ({
+        svc_id:     r.SVCID,
+        court_name: r.SVCNM,
+        place_name: r.PLACENM,
+        area:       r.AREANM,
+        status:     r.REVSTATUS,
+        start_dt:   r.SVCOPNBGNDT,
+        svc_url:    r.SVCURL,
+      }));
+      this._state.error = null;
+    } catch {
+      this._state.courts = this.DEMO_COURTS;
+      this._state.error  = 'api_error';
+    }
+  },
+
+  _getFiltered() {
+    const { courts, search, areaFilter } = this._state;
+    const q = search.trim().toLowerCase();
+    return courts.filter(c => {
+      const okArea   = !areaFilter.length || areaFilter.includes(c.area);
+      const okSearch = !q
+        || c.court_name.toLowerCase().includes(q)
+        || c.area.includes(q)
+        || c.place_name.toLowerCase().includes(q);
+      return okArea && okSearch;
+    });
+  },
+
+  _renderContent() {
+    const el = document.getElementById('courtAlertContent');
+    if (!el) return;
+    const st = this._state;
+
+    const listEl      = document.getElementById('courtAlertList');
+    const savedScroll = listEl ? listEl.scrollTop : 0;
+
+    if (st.loading) {
+      el.innerHTML = `
+        <div style="padding:16px;">
+          <div class="skeleton" style="height:72px;border-radius:14px;margin-bottom:12px;"></div>
+          <div class="skeleton" style="height:48px;border-radius:14px;margin-bottom:12px;"></div>
+          <div class="skeleton" style="height:300px;border-radius:14px;margin-bottom:12px;"></div>
+          <div class="skeleton" style="height:80px;border-radius:14px;"></div>
+        </div>`;
+      return;
+    }
+
+    const filtered  = this._getFiltered();
+    const available = filtered.filter(c => c.status === '접수중').length;
+
+    el.innerHTML = `<div style="padding:0 16px 32px;">
+
+      <div style="display:flex;align-items:center;justify-content:space-between;background:var(--cc-card);border:1px solid var(--cc-border);border-radius:16px;padding:16px 20px;margin-bottom:12px;">
+        <div>
+          <div style="font-size:15px;font-weight:700;">취소 알림 받기</div>
+          <div style="font-size:12px;color:var(--cc-gray-400);margin-top:2px;">서울시 공공 테니스장 취소 자리 알림</div>
+        </div>
+        <button onclick="CourtAlert.toggleAlert()" style="padding:8px 20px;border-radius:999px;border:1.5px solid ${st.alertOn ? 'var(--cc-lime)' : 'var(--cc-border)'};background:${st.alertOn ? 'rgba(200,255,0,0.1)' : 'transparent'};color:${st.alertOn ? 'var(--cc-lime)' : 'var(--cc-gray-400)'};font-weight:800;font-size:14px;cursor:pointer;">
+          ${st.alertOn ? 'ON' : 'OFF'}
+        </button>
+      </div>
+
+      ${st.error === 'demo' ? `
+        <div style="display:flex;align-items:center;gap:10px;background:rgba(61,139,255,0.08);border:1px solid rgba(61,139,255,0.2);border-radius:12px;padding:11px 14px;margin-bottom:16px;">
+          <span style="font-size:13px;color:#3D8BFF;flex:1;">ℹ️ 데모 데이터 표시 중 — 실시간 연동은 서울시 API 키가 필요해요</span>
+          <button onclick="CourtAlert.showApiKeyInput()" style="font-size:12px;color:var(--cc-lime);font-weight:700;background:none;border:none;cursor:pointer;white-space:nowrap;">키 등록 →</button>
+        </div>
+      ` : st.error === 'api_error' ? `
+        <div style="background:rgba(255,71,87,0.08);border:1px solid rgba(255,71,87,0.2);border-radius:12px;padding:11px 14px;margin-bottom:16px;">
+          <span style="font-size:13px;color:var(--cc-red);">⚠️ API 연결 실패 — 데모 데이터로 표시 중</span>
+        </div>
+      ` : `
+        <div style="display:flex;align-items:center;gap:8px;background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.2);border-radius:12px;padding:11px 14px;margin-bottom:16px;">
+          <div style="width:7px;height:7px;border-radius:50%;background:#4ADE80;flex-shrink:0;"></div>
+          <span style="font-size:13px;color:#4ADE80;font-weight:600;flex:1;">실시간 연동 중 · 접수중 ${available}개</span>
+          <button onclick="CourtAlert.refresh()" style="font-size:12px;color:var(--cc-gray-400);background:none;border:none;cursor:pointer;">🔄 새로고침</button>
+        </div>
+      `}
+
+      <div style="margin-bottom:24px;">
+        <div class="section-title" style="margin-bottom:12px;">📍 알림 받을 코트 <span style="font-size:12px;font-weight:400;color:var(--cc-gray-400);">(미선택 시 전체)</span></div>
+
+        <div style="overflow-x:auto;padding-bottom:8px;margin-bottom:10px;-webkit-overflow-scrolling:touch;">
+          <div style="display:flex;gap:6px;width:max-content;">
+            ${this.AREAS.map(a => {
+              const on = st.areaFilter.includes(a);
+              return `<button onclick="CourtAlert.toggleArea('${a}')" style="padding:5px 12px;border-radius:999px;border:1.5px solid ${on ? 'var(--cc-lime)' : 'var(--cc-border)'};background:${on ? 'rgba(200,255,0,0.1)' : 'var(--cc-card)'};color:${on ? 'var(--cc-lime)' : 'var(--cc-gray-400)'};font-size:12px;font-weight:600;white-space:nowrap;cursor:pointer;">${a}</button>`;
+            }).join('')}
+          </div>
+        </div>
+
+        <div style="position:relative;margin-bottom:10px;">
+          <svg style="position:absolute;left:14px;top:50%;transform:translateY(-50%);pointer-events:none;" width="15" height="15" fill="none" stroke="var(--cc-gray-400)" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input id="courtAlertSearch" type="text" class="form-input" placeholder="테니스장 이름 검색..." value="${this._esc(st.search)}" oninput="CourtAlert.setSearch(this.value)" style="padding-left:40px;">
+        </div>
+
+        ${st.selectedIds.length ? `
+          <div style="font-size:12px;color:var(--cc-lime);font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:8px;">
+            ✓ ${st.selectedIds.length}개 코트 선택됨
+            <button onclick="CourtAlert.clearSel()" style="color:var(--cc-gray-400);font-size:11px;background:none;border:none;cursor:pointer;">전체 해제</button>
+          </div>
+        ` : ''}
+
+        <div id="courtAlertList" style="display:flex;flex-direction:column;gap:7px;max-height:280px;overflow-y:auto;">
+          ${filtered.length === 0
+            ? `<div style="text-align:center;padding:40px 0;color:var(--cc-gray-400);font-size:14px;">검색 결과가 없어요</div>`
+            : filtered.map(c => {
+                const sel  = st.selectedIds.includes(c.svc_id);
+                const open = c.status === '접수중';
+                const dt   = c.start_dt ? new Date(c.start_dt) : null;
+                const dtStr = dt
+                  ? `${dt.getMonth()+1}/${dt.getDate()}(${['일','월','화','수','목','금','토'][dt.getDay()]}) ${String(dt.getHours()).padStart(2,'0')}:00`
+                  : '';
+                return `<button onclick="CourtAlert.toggleCourt('${c.svc_id}')" style="display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:12px;border:1.5px solid ${sel ? 'var(--cc-lime)' : 'var(--cc-border)'};background:${sel ? 'rgba(200,255,0,0.04)' : 'var(--cc-card)'};cursor:pointer;text-align:left;width:100%;">
+                    <div style="width:20px;height:20px;border-radius:50%;border:2px solid ${sel ? 'var(--cc-lime)' : 'var(--cc-border)'};background:${sel ? 'var(--cc-lime)' : 'transparent'};flex-shrink:0;display:flex;align-items:center;justify-content:center;">
+                      ${sel ? `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#0A1628" stroke-width="3.5"><polyline points="20 6 9 17 4 12"/></svg>` : ''}
+                    </div>
+                    <div style="flex:1;min-width:0;">
+                      <div style="font-size:13px;font-weight:700;color:var(--cc-text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${c.court_name}</div>
+                      <div style="font-size:11px;color:var(--cc-gray-400);margin-top:1px;">${c.area} · ${dtStr}</div>
+                    </div>
+                    <span style="flex-shrink:0;font-size:11px;font-weight:700;padding:3px 8px;border-radius:999px;background:${open ? 'rgba(74,222,128,0.12)' : 'rgba(156,163,175,0.1)'};color:${open ? '#4ADE80' : 'var(--cc-gray-400)'};">${c.status}</span>
+                  </button>`;
+              }).join('')
+          }
+        </div>
+      </div>
+
+      <div style="margin-bottom:24px;">
+        <div class="section-title" style="margin-bottom:12px;">📅 원하는 요일 <span style="font-size:12px;font-weight:400;color:var(--cc-gray-400);">(미선택 시 매일)</span></div>
+        <div style="display:flex;gap:8px;">
+          ${this.DAYS.map((d, i) => {
+            const on = st.days.includes(i);
+            return `<button onclick="CourtAlert.toggleDay(${i})" style="width:40px;height:40px;border-radius:50%;border:1.5px solid ${on ? 'var(--cc-lime)' : 'var(--cc-border)'};background:${on ? 'rgba(200,255,0,0.1)' : 'var(--cc-card)'};color:${on ? 'var(--cc-lime)' : 'var(--cc-gray-400)'};font-size:13px;font-weight:700;cursor:pointer;">${d}</button>`;
+          }).join('')}
+        </div>
+      </div>
+
+      <div style="margin-bottom:24px;">
+        <div class="section-title" style="margin-bottom:12px;">⏰ 원하는 시간대</div>
+        <div style="margin-bottom:12px;">
+          <div style="font-size:12px;color:var(--cc-gray-400);font-weight:600;margin-bottom:8px;">시작</div>
+          <div style="overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch;">
+            <div style="display:flex;gap:6px;width:max-content;">
+              ${this.TIME_OPTIONS.filter(t => t <= st.timeEnd).map(t => {
+                const on = st.timeStart === t;
+                return `<button onclick="CourtAlert.setTimeStart('${t}')" style="padding:6px 14px;border-radius:999px;border:1.5px solid ${on ? 'var(--cc-lime)' : 'var(--cc-border)'};background:${on ? 'rgba(200,255,0,0.1)' : 'var(--cc-card)'};color:${on ? 'var(--cc-lime)' : 'var(--cc-gray-400)'};font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">${t}</button>`;
+              }).join('')}
+            </div>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:12px;color:var(--cc-gray-400);font-weight:600;margin-bottom:8px;">종료</div>
+          <div style="overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch;">
+            <div style="display:flex;gap:6px;width:max-content;">
+              ${this.TIME_OPTIONS.filter(t => t >= st.timeStart).map(t => {
+                const on = st.timeEnd === t;
+                return `<button onclick="CourtAlert.setTimeEnd('${t}')" style="padding:6px 14px;border-radius:999px;border:1.5px solid ${on ? 'var(--cc-lime)' : 'var(--cc-border)'};background:${on ? 'rgba(200,255,0,0.1)' : 'var(--cc-card)'};color:${on ? 'var(--cc-lime)' : 'var(--cc-gray-400)'};font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">${t}</button>`;
+              }).join('')}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      ${this._renderSummary()}
+
+      <button onclick="CourtAlert.saveSettings()" class="btn btn-primary btn-full btn-lg" style="margin-top:4px;">
+        🔔 알림 설정 저장
+      </button>
+    </div>`;
+
+    const newListEl = document.getElementById('courtAlertList');
+    if (newListEl && savedScroll) newListEl.scrollTop = savedScroll;
+  },
+
+  _renderSummary() {
+    const st  = this._state;
+    const sel = st.selectedIds.map(id => (st.courts.find(c => c.svc_id === id)?.court_name || id));
+    const courtTxt = !sel.length    ? '전체 코트' : sel.length <= 2 ? sel.join(', ') : `${sel[0]} 외 ${sel.length - 1}개`;
+    const dayTxt   = !st.days.length ? '매일'      : st.days.map(d => this.DAYS[d]).join(' · ');
+    const timeTxt  = `${st.timeStart} ~ ${st.timeEnd}`;
+    return `
+      <div style="background:rgba(200,255,0,0.04);border:1px solid rgba(200,255,0,0.18);border-radius:16px;padding:16px;margin-bottom:16px;">
+        <div style="font-size:11px;color:var(--cc-lime);font-weight:800;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">현재 설정 요약</div>
+        <div style="font-size:13px;line-height:2.1;">
+          <div>🏟 <span style="color:var(--cc-gray-400);">코트</span> &nbsp;<strong>${courtTxt}</strong></div>
+          <div>📅 <span style="color:var(--cc-gray-400);">요일</span> &nbsp;<strong>${dayTxt}</strong></div>
+          <div>⏰ <span style="color:var(--cc-gray-400);">시간</span> &nbsp;<strong>${timeTxt}</strong></div>
+        </div>
+        <div style="margin-top:10px;font-size:11px;color:var(--cc-gray-600);">위 조건에 해당하는 취소 자리가 생기면 알림을 보내드려요</div>
+      </div>`;
+  },
+
+  _esc(str) {
+    return (str || '').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  },
+
+  toggleAlert() { this._state.alertOn = !this._state.alertOn; this._renderContent(); },
+
+  toggleArea(area) {
+    const arr = this._state.areaFilter;
+    this._state.areaFilter = arr.includes(area) ? arr.filter(a => a !== area) : [...arr, area];
+    this._renderContent();
+  },
+
+  setSearch(val) {
+    this._state.search = val;
+    this._renderContent();
+    const inp = document.getElementById('courtAlertSearch');
+    if (inp) { inp.focus(); inp.setSelectionRange(val.length, val.length); }
+  },
+
+  toggleCourt(id) {
+    const arr = this._state.selectedIds;
+    this._state.selectedIds = arr.includes(id) ? arr.filter(s => s !== id) : [...arr, id];
+    this._renderContent();
+  },
+
+  clearSel() { this._state.selectedIds = []; this._renderContent(); },
+
+  toggleDay(day) {
+    const arr = this._state.days;
+    this._state.days = arr.includes(day) ? arr.filter(d => d !== day) : [...arr, day];
+    this._renderContent();
+  },
+
+  setTimeStart(t) {
+    this._state.timeStart = t;
+    if (t > this._state.timeEnd) this._state.timeEnd = t;
+    this._renderContent();
+  },
+
+  setTimeEnd(t) {
+    this._state.timeEnd = t;
+    if (t < this._state.timeStart) this._state.timeStart = t;
+    this._renderContent();
+  },
+
+  async refresh() {
+    this._state.courts  = [];
+    this._state.loading = true;
+    this._renderContent();
+    await this._fetchCourts();
+    this._state.loading = false;
+    this._renderContent();
+  },
+
+  showApiKeyInput() {
+    const key = prompt('서울시 공공데이터 API 키를 입력하세요.\n발급: https://data.seoul.go.kr → 로그인 → API 신청');
+    if (key && key.trim()) {
+      Store.set('seoul_api_key', key.trim());
+      this.refresh();
+    }
+  },
+};
+
+window.CourtAlert = CourtAlert;
 window.Home = Home;
 window.MatchDetail = MatchDetail;
 window.CreateMatch = CreateMatch;
