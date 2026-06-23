@@ -28,3 +28,16 @@ Thumbs.db
 
 # 개인 API 키 (git 제외)
 js/config.local.js
+
+# React Native / Expo 파일 (Netlify 빌드 오류 방지)
+package.json
+package-lock.json
+yarn.lock
+tsconfig.json
+babel.config.js
+app.json
+types/
+lib/
+store/
+hooks/
+components/
