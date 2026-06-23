@@ -11,6 +11,10 @@ const App = {
   currentData: {},
 
   init() {
+    // config.local.js에 설정된 API 키를 Store에 자동 적용
+    if (window.APP_CONFIG?.seoulApiKey && !Store.get('seoul_api_key')) {
+      Store.set('seoul_api_key', window.APP_CONFIG.seoulApiKey);
+    }
     this.currentUser = Auth.getCurrentUser();
     this.loadNotifications();
     this.setupNavigation();

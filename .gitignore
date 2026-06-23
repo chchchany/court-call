@@ -25,3 +25,6 @@ Thumbs.db
 .idea/
 *.swp
 *.swo
+
+# 개인 API 키 (git 제외)
+js/config.local.js
