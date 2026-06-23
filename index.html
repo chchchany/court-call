@@ -39,7 +39,7 @@
       padding: 2px 8px;
       border-radius: 999px;
       background: rgba(255,255,255,0.1);
-      color: var(--cc-text);
+      color: var(--color-ink);
     }
   </style>
 </head>
@@ -143,10 +143,10 @@
           <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
         </button>
         <div style="font-size:28px;font-weight:900;font-family:'Inter',sans-serif;letter-spacing:-1px;">
-          Court<span style="color:var(--cc-lime);">Call</span>
+          Court<span style="color:var(--color-lime);">Call</span>
         </div>
         <div style="font-size:22px;font-weight:800;margin-top:var(--space-sm);">다시 오셨군요 👋</div>
-        <div style="font-size:14px;color:var(--cc-gray-400);margin-top:4px;">로그인하고 번개 테니스를 즐겨보세요</div>
+        <div style="font-size:14px;color:var(--color-ink3);margin-top:4px;">로그인하고 번개 테니스를 즐겨보세요</div>
       </div>
 
       <div class="auth-content" style="flex:1;">
@@ -173,8 +173,8 @@
           로그인
         </button>
 
-        <div style="text-align:center;margin-top:var(--space-md);font-size:14px;color:var(--cc-gray-400);">
-          계정이 없으신가요? <span style="color:var(--cc-lime);font-weight:700;cursor:pointer;" data-page="signup">회원가입</span>
+        <div style="text-align:center;margin-top:var(--space-md);font-size:14px;color:var(--color-ink3);">
+          계정이 없으신가요? <span style="color:var(--color-lime);font-weight:700;cursor:pointer;" data-page="signup">회원가입</span>
         </div>
       </div>
     </div>
@@ -191,7 +191,7 @@
           <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
         </button>
         <div style="font-size:22px;font-weight:800;margin-top:var(--space-sm);">코트콜 가입 🎾</div>
-        <div style="font-size:14px;color:var(--cc-gray-400);margin-top:4px;">정보를 입력하고 번개 테니스를 시작하세요</div>
+        <div style="font-size:14px;color:var(--color-ink3);margin-top:4px;">정보를 입력하고 번개 테니스를 시작하세요</div>
       </div>
 
       <div class="auth-content" style="flex:1;">
@@ -242,7 +242,7 @@
     <!-- 탑 헤더 -->
     <div class="top-header">
       <div style="font-size:20px;font-weight:900;font-family:'Inter',sans-serif;letter-spacing:-0.5px;">
-        Court<span style="color:var(--cc-lime);">Call</span>
+        Court<span style="color:var(--color-lime);">Call</span>
       </div>
       <div class="spacer"></div>
       <div class="header-actions">
@@ -315,12 +315,12 @@
           <div class="section-title">📋 기본 정보</div>
 
           <div class="form-group">
-            <label class="form-label">경기 제목 <span style="color:var(--cc-gray-600);font-size:11px;">(선택)</span></label>
+            <label class="form-label">경기 제목 <span style="color:var(--color-ink4);font-size:11px;">(선택)</span></label>
             <input type="text" id="matchTitle" class="form-input" placeholder="예: 영등포 저녁 번개 🎾" maxlength="30">
           </div>
 
           <div class="form-group">
-            <label class="form-label">코트 이름 <span style="color:var(--cc-red);font-size:12px;">*</span></label>
+            <label class="form-label">코트 이름 <span style="color:var(--color-danger-fg);font-size:12px;">*</span></label>
             <input type="text" id="venue" class="form-input" placeholder="예: 영등포 공원 테니스코트" required>
           </div>
 
@@ -331,11 +331,11 @@
 
           <div class="grid-2">
             <div class="form-group">
-              <label class="form-label">날짜 <span style="color:var(--cc-red);font-size:12px;">*</span></label>
+              <label class="form-label">날짜 <span style="color:var(--color-danger-fg);font-size:12px;">*</span></label>
               <input type="date" id="matchDate" class="form-input" required>
             </div>
             <div class="form-group">
-              <label class="form-label">시작 시간 <span style="color:var(--cc-red);font-size:12px;">*</span></label>
+              <label class="form-label">시작 시간 <span style="color:var(--color-danger-fg);font-size:12px;">*</span></label>
               <input type="time" id="matchTime" class="form-input" value="19:00" required>
             </div>
           </div>
@@ -370,12 +370,12 @@
 
           <div class="grid-2">
             <div class="form-group">
-              <label class="form-label">모집 인원 <span style="color:var(--cc-red);font-size:12px;">*</span></label>
+              <label class="form-label">모집 인원 <span style="color:var(--color-danger-fg);font-size:12px;">*</span></label>
               <input type="number" id="maxPlayers" class="form-input" value="4" min="2" max="20"
                 oninput="CreateMatch.updateCalculator()">
             </div>
             <div class="form-group">
-              <label class="form-label">코트 총비용 <span style="color:var(--cc-red);font-size:12px;">*</span></label>
+              <label class="form-label">코트 총비용 <span style="color:var(--color-danger-fg);font-size:12px;">*</span></label>
               <div class="form-input-prefix">
                 <span class="prefix">₩</span>
                 <input type="number" id="totalCost" class="form-input" placeholder="76000" min="0"
@@ -387,11 +387,11 @@
           <!-- 자동 계산 결과 -->
           <div class="cost-calculator" id="costCalculator">
             <div class="cost-row">
-              <span style="color:var(--cc-gray-400);">코트 총비용</span>
+              <span style="color:var(--color-ink3);">코트 총비용</span>
               <span style="font-weight:600;">0원</span>
             </div>
             <div class="cost-row">
-              <span style="color:var(--cc-gray-400);">모집 인원</span>
+              <span style="color:var(--color-ink3);">모집 인원</span>
               <span style="font-weight:600;">4명</span>
             </div>
             <div class="cost-row">
@@ -462,7 +462,7 @@
     </div>
 
     <!-- 탭 -->
-    <div style="padding:var(--space-sm) var(--space-md);border-bottom:1px solid var(--cc-border);display:flex;gap:8px;">
+    <div style="padding:var(--space-sm) var(--space-md);border-bottom:1px solid var(--color-border);display:flex;gap:8px;">
       <div class="chip chip-active my-matches-tab" data-tab="participating" onclick="MyMatches.setTab('participating')">참가 경기</div>
       <div class="chip chip-default my-matches-tab" data-tab="hosting" onclick="MyMatches.setTab('hosting')">개설 경기</div>
     </div>
@@ -480,7 +480,7 @@
     <div class="top-header">
       <div style="font-size:18px;font-weight:800;">알림</div>
       <div class="spacer"></div>
-      <button style="font-size:12px;color:var(--cc-gray-400);padding:8px;" onclick="Notifications.render()">
+      <button style="font-size:12px;color:var(--color-ink3);padding:8px;" onclick="Notifications.render()">
         모두 읽음
       </button>
     </div>
@@ -509,20 +509,20 @@
 
       <div class="grid-3" style="margin-top:var(--space-md);gap:8px;">
         <div style="text-align:center;">
-          <div style="font-size:22px;font-weight:800;color:var(--cc-lime);" id="profileMatchCount">0</div>
-          <div style="font-size:11px;color:var(--cc-gray-400);">참가한 경기</div>
+          <div style="font-size:22px;font-weight:800;color:var(--color-lime);" id="profileMatchCount">0</div>
+          <div style="font-size:11px;color:var(--color-ink3);">참가한 경기</div>
         </div>
         <div style="text-align:center;">
-          <div style="font-size:22px;font-weight:800;color:var(--cc-lime);" id="profileHostCount">0</div>
-          <div style="font-size:11px;color:var(--cc-gray-400);">개설한 경기</div>
+          <div style="font-size:22px;font-weight:800;color:var(--color-lime);" id="profileHostCount">0</div>
+          <div style="font-size:11px;color:var(--color-ink3);">개설한 경기</div>
         </div>
         <div style="text-align:center;">
-          <div style="font-size:22px;font-weight:800;color:var(--cc-lime);">0</div>
-          <div style="font-size:11px;color:var(--cc-gray-400);">노쇼</div>
+          <div style="font-size:22px;font-weight:800;color:var(--color-lime);">0</div>
+          <div style="font-size:11px;color:var(--color-ink3);">노쇼</div>
         </div>
       </div>
 
-      <div style="margin-top:12px;font-size:11px;color:var(--cc-gray-600);" id="profileJoinDate"></div>
+      <div style="margin-top:12px;font-size:11px;color:var(--color-ink4);" id="profileJoinDate"></div>
     </div>
 
     <!-- 메뉴 -->
@@ -533,32 +533,32 @@
         <div class="menu-item" onclick="App.navigate('my-matches')">
           <div class="menu-icon" style="background:rgba(200,255,0,0.1);">🎾</div>
           <span class="menu-label">내 경기 목록</span>
-          <svg width="16" height="16" fill="none" stroke="var(--cc-gray-600)" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+          <svg width="16" height="16" fill="none" stroke="var(--color-ink4)" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
         </div>
         <div class="menu-item" onclick="App.navigate('notifications')">
           <div class="menu-icon" style="background:rgba(61,139,255,0.1);">🔔</div>
           <span class="menu-label">알림</span>
-          <svg width="16" height="16" fill="none" stroke="var(--cc-gray-600)" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+          <svg width="16" height="16" fill="none" stroke="var(--color-ink4)" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
         </div>
         <div class="menu-item" onclick="App.navigate('court-alert')">
           <div class="menu-icon" style="background:rgba(200,255,0,0.08);">🎾</div>
           <span class="menu-label">코트 취소 알림 설정</span>
-          <svg width="16" height="16" fill="none" stroke="var(--cc-gray-600)" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+          <svg width="16" height="16" fill="none" stroke="var(--color-ink4)" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
         </div>
         <div class="menu-item" onclick="App.navigate('account-settings')">
           <div class="menu-icon" style="background:rgba(74,222,128,0.1);">🏦</div>
           <span class="menu-label">결제 수단 관리</span>
-          <svg width="16" height="16" fill="none" stroke="var(--cc-gray-600)" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+          <svg width="16" height="16" fill="none" stroke="var(--color-ink4)" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
         </div>
       </div>
 
       <!-- 신뢰도 정보 -->
       <div class="card" style="padding:var(--space-md);margin-bottom:var(--space-sm);">
-        <div style="font-size:12px;color:var(--cc-gray-600);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px;">🛡️ 신뢰도 시스템</div>
-        <div style="font-size:13px;color:var(--cc-gray-400);line-height:1.7;">
-          • 경기 참가 시 <span style="color:var(--cc-lime);font-weight:600;">+5점</span><br>
-          • 호스트로 개설 시 <span style="color:var(--cc-lime);font-weight:600;">+10점</span><br>
-          • 노쇼(무단불참) 시 <span style="color:var(--cc-red);font-weight:600;">-30점</span><br>
+        <div style="font-size:12px;color:var(--color-ink4);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px;">🛡️ 신뢰도 시스템</div>
+        <div style="font-size:13px;color:var(--color-ink3);line-height:1.7;">
+          • 경기 참가 시 <span style="color:var(--color-lime);font-weight:600;">+5점</span><br>
+          • 호스트로 개설 시 <span style="color:var(--color-lime);font-weight:600;">+10점</span><br>
+          • 노쇼(무단불참) 시 <span style="color:var(--color-danger-fg);font-weight:600;">-30점</span><br>
           • 100점 이하 시 신청 제한될 수 있어요
         </div>
       </div>
@@ -568,21 +568,22 @@
         <div class="menu-item">
           <div class="menu-icon" style="background:rgba(255,255,255,0.05);">⚙️</div>
           <span class="menu-label">설정</span>
-          <svg width="16" height="16" fill="none" stroke="var(--cc-gray-600)" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+          <svg width="16" height="16" fill="none" stroke="var(--color-ink4)" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
         </div>
         <div class="menu-item">
           <div class="menu-icon" style="background:rgba(255,255,255,0.05);">❓</div>
           <span class="menu-label">고객센터</span>
-          <svg width="16" height="16" fill="none" stroke="var(--cc-gray-600)" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+          <svg width="16" height="16" fill="none" stroke="var(--color-ink4)" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
         </div>
       </div>
+      
 
       <!-- 로그아웃 -->
       <button class="btn btn-danger btn-full" style="margin-top:8px;" onclick="Auth.logout()">
         로그아웃
       </button>
 
-      <div style="text-align:center;margin-top:16px;font-size:11px;color:var(--cc-gray-600);">
+      <div style="text-align:center;margin-top:16px;font-size:11px;color:var(--color-ink4);">
         CourtCall v1.0.0 MVP · made with ❤️ by 차니
       </div>
     </div>

@@ -79,14 +79,14 @@ const Home = {
 
     // 대기자 배지
     const waitBadge = m.waitlist.length > 0
-      ? `<span style="font-size:11px;color:var(--cc-blue);margin-left:4px;">+${m.waitlist.length}대기</span>`
+      ? `<span style="font-size:11px;color:var(--color-info-fg);margin-left:4px;">+${m.waitlist.length}대기</span>`
       : '';
 
     // 내 상태 배지
     let myBadge = '';
     if (isHost) myBadge = `<span class="chip chip-active" style="padding:2px 8px;font-size:10px;">호스트</span>`;
     else if (isParticipant) myBadge = `<span class="chip" style="padding:2px 8px;font-size:10px;background:rgba(74,222,128,0.1);color:#4ADE80;border:1px solid rgba(74,222,128,0.3);">참가중</span>`;
-    else if (isWaiting) myBadge = `<span class="chip" style="padding:2px 8px;font-size:10px;background:rgba(61,139,255,0.1);color:var(--cc-blue);border:1px solid rgba(61,139,255,0.3);">대기중</span>`;
+    else if (isWaiting) myBadge = `<span class="chip" style="padding:2px 8px;font-size:10px;background:rgba(61,139,255,0.1);color:var(--color-info-fg);border:1px solid rgba(61,139,255,0.3);">대기중</span>`;
 
     return `
       <div class="match-card" onclick="App.navigate('match-detail', {matchId: '${m.id}'})">
@@ -94,7 +94,7 @@ const Home = {
           <div>
             <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
               <span class="match-status-badge ${status.class}">${status.label}</span>
-              <span style="font-size:11px;padding:2px 8px;border-radius:999px;background:rgba(255,255,255,0.05);color:var(--cc-gray-400);">${m.level}</span>
+              <span style="font-size:11px;padding:2px 8px;border-radius:999px;background:rgba(255,255,255,0.05);color:var(--color-ink3);">${m.level}</span>
               ${myBadge}
             </div>
             <div class="match-title">${m.title || m.venue}</div>
@@ -105,7 +105,7 @@ const Home = {
         <div class="match-card-footer">
           <div class="match-slots">
             <div class="slot-dots">${dots}</div>
-            <span style="font-size:12px;color:var(--cc-gray-400);margin-left:4px;">${filled}/${m.maxPlayers}${waitBadge}</span>
+            <span style="font-size:12px;color:var(--color-ink3);margin-left:4px;">${filled}/${m.maxPlayers}${waitBadge}</span>
           </div>
           <div style="text-align:right;">
             <div class="match-price">${Utils.formatCost(m.perPersonCost)}</div>
@@ -157,21 +157,21 @@ const MatchDetail = {
       const p = match.participants[i];
       if (p) {
         return `
-          <div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--cc-border);">
+          <div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--color-border);">
             <div class="avatar avatar-sm">${p.userName[0]}</div>
             <div style="flex:1;">
               <div style="font-size:14px;font-weight:600;">${p.userName}</div>
-              <div style="font-size:11px;color:var(--cc-gray-600);">${Utils.timeAgo(p.appliedAt)} 신청</div>
+              <div style="font-size:11px;color:var(--color-ink4);">${Utils.timeAgo(p.appliedAt)} 신청</div>
             </div>
-            ${p.userId === match.hostId ? `<span style="font-size:10px;color:var(--cc-lime);font-weight:700;background:rgba(200,255,0,0.1);padding:2px 8px;border-radius:999px;">호스트</span>` : ''}
-            ${match.paymentStatus?.[p.userId] ? `<span style="font-size:10px;color:#4ADE80;font-weight:700;">입금완료</span>` : (match.status === 'confirmed' ? `<span style="font-size:10px;color:var(--cc-orange);font-weight:700;">입금대기</span>` : '')}
+            ${p.userId === match.hostId ? `<span style="font-size:10px;color:var(--color-lime);font-weight:700;background:rgba(200,255,0,0.1);padding:2px 8px;border-radius:999px;">호스트</span>` : ''}
+            ${match.paymentStatus?.[p.userId] ? `<span style="font-size:10px;color:#4ADE80;font-weight:700;">입금완료</span>` : (match.status === 'confirmed' ? `<span style="font-size:10px;color:var(--color-warning-fg);font-weight:700;">입금대기</span>` : '')}
           </div>
         `;
       } else {
         return `
-          <div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--cc-border);">
-            <div class="avatar avatar-sm" style="background:var(--cc-border);opacity:0.5;"></div>
-            <div style="font-size:13px;color:var(--cc-gray-600);">빈 자리</div>
+          <div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--color-border);">
+            <div class="avatar avatar-sm" style="background:var(--color-border);opacity:0.5;"></div>
+            <div style="font-size:13px;color:var(--color-ink4);">빈 자리</div>
           </div>
         `;
       }
@@ -182,11 +182,11 @@ const MatchDetail = {
       <div style="margin-top:12px;">
         <div class="section-title">대기자 목록</div>
         ${match.waitlist.map((p, i) => `
-          <div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--cc-border);">
-            <div style="width:24px;height:24px;background:rgba(61,139,255,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--cc-blue);">${i+1}</div>
+          <div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--color-border);">
+            <div style="width:24px;height:24px;background:rgba(61,139,255,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--color-info-fg);">${i+1}</div>
             <div class="avatar avatar-sm" style="background:linear-gradient(135deg,#3D8BFF,#6BB3FF);">${p.userName[0]}</div>
             <div style="flex:1;font-size:14px;font-weight:500;">${p.userName}</div>
-            <div style="font-size:11px;color:var(--cc-gray-600);">${Utils.timeAgo(p.appliedAt)}</div>
+            <div style="font-size:11px;color:var(--color-ink4);">${Utils.timeAgo(p.appliedAt)}</div>
           </div>
         `).join('')}
       </div>
@@ -223,7 +223,7 @@ const MatchDetail = {
             <div style="background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.3);border-radius:12px;padding:16px;text-align:center;">
               <div style="font-size:20px;margin-bottom:4px;">✅</div>
               <div style="font-weight:700;color:#4ADE80;">입금 완료</div>
-              <div style="font-size:13px;color:var(--cc-gray-400);margin-top:4px;">참가비 입금이 확인됐어요</div>
+              <div style="font-size:13px;color:var(--color-ink3);margin-top:4px;">참가비 입금이 확인됐어요</div>
             </div>
           `;
         } else {
@@ -251,11 +251,11 @@ const MatchDetail = {
         <div class="waiting-banner">
           <div>
             <div class="waiting-number">${waitPos}</div>
-            <div style="font-size:10px;color:var(--cc-blue);margin-top:2px;">대기 순번</div>
+            <div style="font-size:10px;color:var(--color-info-fg);margin-top:2px;">대기 순번</div>
           </div>
           <div style="flex:1;">
             <div style="font-size:14px;font-weight:600;">대기 중이에요</div>
-            <div style="font-size:12px;color:var(--cc-gray-400);margin-top:2px;">취소자 발생 시 자동으로 승격돼요</div>
+            <div style="font-size:12px;color:var(--color-ink3);margin-top:2px;">취소자 발생 시 자동으로 승격돼요</div>
           </div>
           <button class="btn btn-danger btn-sm" onclick="MatchDetail.cancelWaiting('${match.id}')">취소</button>
         </div>
@@ -304,11 +304,11 @@ const MatchDetail = {
           </div>
           <div class="detail-info-item">
             <div class="detail-info-label">${Icons.users} 인원</div>
-            <div class="detail-info-value">${match.participants.length}<span style="font-size:13px;color:var(--cc-gray-400);">/${match.maxPlayers}명</span></div>
+            <div class="detail-info-value">${match.participants.length}<span style="font-size:13px;color:var(--color-ink3);">/${match.maxPlayers}명</span></div>
           </div>
           <div class="detail-info-item">
             <div class="detail-info-label">${Icons.won} 참가비</div>
-            <div class="detail-info-value" style="color:var(--cc-lime);">${Utils.formatCost(match.perPersonCost)}</div>
+            <div class="detail-info-value" style="color:var(--color-lime);">${Utils.formatCost(match.perPersonCost)}</div>
           </div>
         </div>
       </div>
@@ -316,9 +316,9 @@ const MatchDetail = {
       <!-- 장소 정보 -->
       <div class="section">
         <div class="card" style="padding:var(--space-md);">
-          <div style="font-size:12px;color:var(--cc-gray-600);margin-bottom:8px;text-transform:uppercase;font-weight:700;letter-spacing:0.5px;">📍 장소</div>
+          <div style="font-size:12px;color:var(--color-ink4);margin-bottom:8px;text-transform:uppercase;font-weight:700;letter-spacing:0.5px;">📍 장소</div>
           <div style="font-size:15px;font-weight:600;">${match.venue}</div>
-          <div style="font-size:13px;color:var(--cc-gray-400);margin-top:4px;">${match.address || ''}</div>
+          <div style="font-size:13px;color:var(--color-ink3);margin-top:4px;">${match.address || ''}</div>
           ${match.address ? `<button class="btn btn-secondary btn-sm" style="margin-top:12px;width:100%;" onclick="window.open('https://map.kakao.com/link/search/${encodeURIComponent(match.address)}')">🗺 지도에서 보기</button>` : ''}
         </div>
       </div>
@@ -327,12 +327,12 @@ const MatchDetail = {
       <div class="section" style="padding-top:0;">
         <div class="card" style="padding:var(--space-md);">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
-            <span style="font-size:12px;color:var(--cc-gray-600);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">🎾 레벨</span>
+            <span style="font-size:12px;color:var(--color-ink4);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">🎾 레벨</span>
             <span style="font-size:14px;font-weight:700;color:${Utils.getLevelColor(match.level)};">${match.level}</span>
           </div>
           ${match.note ? `
-            <div style="font-size:12px;color:var(--cc-gray-600);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">📝 메모</div>
-            <div style="font-size:14px;color:var(--cc-gray-200);line-height:1.6;">${match.note}</div>
+            <div style="font-size:12px;color:var(--color-ink4);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">📝 메모</div>
+            <div style="font-size:14px;color:var(--color-ink2);line-height:1.6;">${match.note}</div>
           ` : ''}
         </div>
       </div>
@@ -341,11 +341,11 @@ const MatchDetail = {
       <div class="section" style="padding-top:0;">
         <div class="cost-calculator">
           <div class="cost-row">
-            <span style="color:var(--cc-gray-400);">코트 총비용</span>
+            <span style="color:var(--color-ink3);">코트 총비용</span>
             <span style="font-weight:600;">${Utils.formatCost(match.totalCost)}</span>
           </div>
           <div class="cost-row">
-            <span style="color:var(--cc-gray-400);">모집 인원</span>
+            <span style="color:var(--color-ink3);">모집 인원</span>
             <span style="font-weight:600;">${match.maxPlayers}명</span>
           </div>
           <div class="cost-row">
@@ -459,11 +459,11 @@ const CreateMatch = {
     if (calcEl) {
       calcEl.innerHTML = `
         <div class="cost-row">
-          <span style="color:var(--cc-gray-400);">코트 총비용</span>
+          <span style="color:var(--color-ink3);">코트 총비용</span>
           <span style="font-weight:600;">${Utils.formatCost(total)}</span>
         </div>
         <div class="cost-row">
-          <span style="color:var(--cc-gray-400);">모집 인원</span>
+          <span style="color:var(--color-ink3);">모집 인원</span>
           <span style="font-weight:600;">${players}명</span>
         </div>
         <div class="cost-row">
@@ -567,7 +567,7 @@ const HostDash = {
         <div style="font-size:20px;flex-shrink:0;">⚠️</div>
         <div style="flex:1;">
           <div style="font-size:13px;font-weight:700;color:#FF7043;margin-bottom:2px;">결제 수단이 등록되지 않았어요</div>
-          <div style="font-size:12px;color:var(--cc-gray-400);">참가자들이 송금할 수 없어요. 카카오페이 링크 또는 계좌를 등록해주세요.</div>
+          <div style="font-size:12px;color:var(--color-ink3);">참가자들이 송금할 수 없어요. 카카오페이 링크 또는 계좌를 등록해주세요.</div>
         </div>
         <button class="btn btn-sm" style="flex-shrink:0;background:#FF7043;color:#fff;border:none;" onclick="App.navigate('account-settings')">등록하기</button>
       </div>
@@ -589,11 +589,11 @@ const HostDash = {
       <div class="section">
         <div class="grid-3">
           <div class="stat-card">
-            <div class="stat-value" style="color:var(--cc-lime);">${match.participants.length}</div>
+            <div class="stat-value" style="color:var(--color-lime);">${match.participants.length}</div>
             <div class="stat-label">참가자</div>
           </div>
           <div class="stat-card">
-            <div class="stat-value" style="color:var(--cc-blue);">${match.waitlist.length}</div>
+            <div class="stat-value" style="color:var(--color-info-fg);">${match.waitlist.length}</div>
             <div class="stat-label">대기자</div>
           </div>
           <div class="stat-card">
@@ -613,8 +613,8 @@ const HostDash = {
               <div class="progress-fill" style="width:${totalExpected ? (paidCount/totalExpected*100) : 0}%;"></div>
             </div>
             <div style="display:flex;justify-content:space-between;font-size:13px;">
-              <span style="color:var(--cc-gray-400);">${paidCount}/${totalExpected}명 입금</span>
-              <span style="color:var(--cc-lime);font-weight:700;">${Utils.formatCost(receivedAmount)} / ${Utils.formatCost(totalAmount)}</span>
+              <span style="color:var(--color-ink3);">${paidCount}/${totalExpected}명 입금</span>
+              <span style="color:var(--color-lime);font-weight:700;">${Utils.formatCost(receivedAmount)} / ${Utils.formatCost(totalAmount)}</span>
             </div>
           </div>
         </div>
@@ -633,7 +633,7 @@ const HostDash = {
                 <div class="participant-info">
                   <div class="participant-name">
                     ${p.userName}
-                    ${p.userId === match.hostId ? ' <span style="font-size:10px;color:var(--cc-lime);">(호스트)</span>' : ''}
+                    ${p.userId === match.hostId ? ' <span style="font-size:10px;color:var(--color-lime);">(호스트)</span>' : ''}
                   </div>
                   <div class="participant-meta">${Utils.timeAgo(p.appliedAt)} 신청</div>
                 </div>
@@ -661,7 +661,7 @@ const HostDash = {
           <div class="section-title">⏳ 대기자 목록</div>
           ${match.waitlist.map((p, i) => `
             <div class="participant-item">
-              <div style="width:24px;height:24px;background:rgba(61,139,255,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--cc-blue);">${i+1}</div>
+              <div style="width:24px;height:24px;background:rgba(61,139,255,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--color-info-fg);">${i+1}</div>
               <div class="avatar avatar-sm" style="background:linear-gradient(135deg,#3D8BFF,#6BB3FF);">${p.userName[0]}</div>
               <div class="participant-info">
                 <div class="participant-name">${p.userName}</div>
@@ -684,7 +684,7 @@ const HostDash = {
           <div style="background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.2);border-radius:12px;padding:16px;text-align:center;">
             <div style="font-size:20px;margin-bottom:4px;">🎾</div>
             <div style="font-weight:700;color:#4ADE80;">경기 확정 완료</div>
-            <div style="font-size:13px;color:var(--cc-gray-400);margin-top:4px;">참가비 수금을 확인해주세요</div>
+            <div style="font-size:13px;color:var(--color-ink3);margin-top:4px;">참가비 수금을 확인해주세요</div>
           </div>
         `}
       </div>
@@ -791,9 +791,9 @@ const MyMatches = {
       const paid = m.paymentStatus?.[user?.id];
 
       let statusBadge = '';
-      if (isHost) statusBadge = `<span style="font-size:11px;color:var(--cc-lime);font-weight:700;">호스트</span>`;
-      else if (isWaiting) statusBadge = `<span style="font-size:11px;color:var(--cc-blue);font-weight:700;">대기중 ${m.waitlist.findIndex(p=>p.userId===user?.id)+1}번</span>`;
-      else if (m.status === 'confirmed' && !paid) statusBadge = `<span style="font-size:11px;color:var(--cc-orange);font-weight:700;">입금 필요</span>`;
+      if (isHost) statusBadge = `<span style="font-size:11px;color:var(--color-lime);font-weight:700;">호스트</span>`;
+      else if (isWaiting) statusBadge = `<span style="font-size:11px;color:var(--color-info-fg);font-weight:700;">대기중 ${m.waitlist.findIndex(p=>p.userId===user?.id)+1}번</span>`;
+      else if (m.status === 'confirmed' && !paid) statusBadge = `<span style="font-size:11px;color:var(--color-warning-fg);font-weight:700;">입금 필요</span>`;
       else if (m.status === 'confirmed' && paid) statusBadge = `<span style="font-size:11px;color:#4ADE80;font-weight:700;">입금완료</span>`;
 
       return `
@@ -806,7 +806,7 @@ const MyMatches = {
           <div class="match-info-row">${Icons.location} ${m.venue}</div>
           <div class="match-info-row">${Icons.calendar} ${Utils.formatDate(m.date)} ${Utils.formatTime(m.time)}</div>
           <div class="match-card-footer">
-            <span style="font-size:13px;color:var(--cc-gray-400);">${m.participants.length}/${m.maxPlayers}명</span>
+            <span style="font-size:13px;color:var(--color-ink3);">${m.participants.length}/${m.maxPlayers}명</span>
             <div class="match-price" style="font-size:16px;">${Utils.formatCost(m.perPersonCost)}</div>
           </div>
         </div>
@@ -906,15 +906,15 @@ const Payment = {
     container.innerHTML = `
       <!-- 금액 -->
       <div style="text-align:center;padding:var(--space-xl) var(--space-md);">
-        <div style="font-size:14px;color:var(--cc-gray-400);margin-bottom:8px;">송금할 금액</div>
+        <div style="font-size:14px;color:var(--color-ink3);margin-bottom:8px;">송금할 금액</div>
         <div class="payment-amount">${Utils.formatCost(match.perPersonCost)}</div>
-        <div style="font-size:13px;color:var(--cc-gray-600);margin-top:8px;">호스트: ${match.hostName}</div>
+        <div style="font-size:13px;color:var(--color-ink4);margin-top:8px;">호스트: ${match.hostName}</div>
       </div>
 
       <!-- 경기 정보 요약 -->
       <div class="section">
         <div class="card" style="padding:var(--space-md);">
-          <div style="font-size:12px;color:var(--cc-gray-600);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px;">경기 정보</div>
+          <div style="font-size:12px;color:var(--color-ink4);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px;">경기 정보</div>
           <div class="match-info-row">${Icons.calendar} ${Utils.formatDate(match.date)} ${Utils.formatTime(match.time)}</div>
           <div class="match-info-row">${Icons.location} ${match.venue}</div>
           <div class="match-info-row">${Icons.users} ${match.participants.length}명 참가</div>
@@ -924,11 +924,11 @@ const Payment = {
       <!-- 안내 -->
       <div class="section" style="padding-top:0;">
         <div style="background:rgba(255,232,18,0.05);border:1px solid rgba(255,232,18,0.2);border-radius:12px;padding:var(--space-md);">
-          <div style="font-size:13px;color:var(--cc-kakao);font-weight:700;margin-bottom:8px;">💛 카카오페이 송금 안내</div>
-          <div style="font-size:13px;color:var(--cc-gray-400);line-height:1.7;">
+          <div style="font-size:13px;color:var(--color-kakao);font-weight:700;margin-bottom:8px;">💛 카카오페이 송금 안내</div>
+          <div style="font-size:13px;color:var(--color-ink3);line-height:1.7;">
             아래 버튼을 누르면 카카오페이 앱으로 이동합니다.<br>
-            <strong style="color:var(--cc-white);">호스트 ${match.hostName}</strong>에게 <strong style="color:var(--cc-lime);">${Utils.formatCost(match.perPersonCost)}</strong>를 송금해주세요.<br>
-            <span style="font-size:11px;color:var(--cc-gray-600);">* 실제 서비스에서는 자동 연동됩니다</span>
+            <strong style="color:var(--color-ink);">호스트 ${match.hostName}</strong>에게 <strong style="color:var(--color-lime);">${Utils.formatCost(match.perPersonCost)}</strong>를 송금해주세요.<br>
+            <span style="font-size:11px;color:var(--color-ink4);">* 실제 서비스에서는 자동 연동됩니다</span>
           </div>
         </div>
       </div>
@@ -958,15 +958,15 @@ const Payment = {
               <div style="font-size:13px;color:#4ADE80;font-weight:700;margin-bottom:12px;">🏦 계좌 이체</div>
               <div style="display:flex;flex-direction:column;gap:8px;">
                 <div style="display:flex;justify-content:space-between;align-items:center;">
-                  <span style="font-size:12px;color:var(--cc-gray-400);">은행</span>
+                  <span style="font-size:12px;color:var(--color-ink3);">은행</span>
                   <span style="font-size:14px;font-weight:700;">${pm.bank}</span>
                 </div>
                 <div style="display:flex;justify-content:space-between;align-items:center;">
-                  <span style="font-size:12px;color:var(--cc-gray-400);">계좌번호</span>
+                  <span style="font-size:12px;color:var(--color-ink3);">계좌번호</span>
                   <span style="font-size:14px;font-weight:700;font-family:'Inter',monospace;letter-spacing:1px;">${pm.accountNumber}</span>
                 </div>
                 <div style="display:flex;justify-content:space-between;align-items:center;">
-                  <span style="font-size:12px;color:var(--cc-gray-400);">예금주</span>
+                  <span style="font-size:12px;color:var(--color-ink3);">예금주</span>
                   <span style="font-size:14px;font-weight:700;">${pm.accountHolder}</span>
                 </div>
               </div>
@@ -991,7 +991,7 @@ const Payment = {
 
         html += `
         <div class="section" style="padding-top:0;">
-          <div style="text-align:center;margin-bottom:10px;font-size:12px;color:var(--cc-gray-600);">
+          <div style="text-align:center;margin-bottom:10px;font-size:12px;color:var(--color-ink4);">
             이미 송금하셨나요?
           </div>
           <button class="btn btn-secondary btn-full" onclick="Payment.confirmManual('${match.id}')">
@@ -1076,7 +1076,7 @@ const Community = {
             <input type="text" id="newCommName" class="form-input" placeholder="예: 강남 번개 테니스" maxlength="20">
           </div>
           <div class="form-group">
-            <label class="form-label">설명 <span style="color:var(--cc-gray-600);font-size:11px;">(선택)</span></label>
+            <label class="form-label">설명 <span style="color:var(--color-ink4);font-size:11px;">(선택)</span></label>
             <input type="text" id="newCommDesc" class="form-input" placeholder="간단한 소개를 입력해주세요" maxlength="50">
           </div>
           <button class="btn btn-primary btn-full" onclick="Community.create()">커뮤니티 만들기</button>
@@ -1103,16 +1103,16 @@ const Community = {
                 <div style="flex:1;min-width:0;">
                   <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
                     <div style="font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${c.name}</div>
-                    ${isOwner ? `<span style="font-size:10px;color:var(--cc-lime);font-weight:700;background:rgba(200,255,0,0.1);padding:1px 6px;border-radius:999px;flex-shrink:0;">운영자</span>` : ''}
+                    ${isOwner ? `<span style="font-size:10px;color:var(--color-lime);font-weight:700;background:rgba(200,255,0,0.1);padding:1px 6px;border-radius:999px;flex-shrink:0;">운영자</span>` : ''}
                   </div>
-                  ${c.description ? `<div style="font-size:12px;color:var(--cc-gray-400);margin-bottom:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${c.description}</div>` : ''}
+                  ${c.description ? `<div style="font-size:12px;color:var(--color-ink3);margin-bottom:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${c.description}</div>` : ''}
                   <div style="display:flex;gap:12px;">
-                    <span style="font-size:12px;color:var(--cc-gray-600);">👥 ${memberCount}명</span>
-                    <span style="font-size:12px;color:var(--cc-gray-600);">🎾 경기 ${matchCount}개</span>
-                    <span style="font-size:12px;color:var(--cc-gray-600);font-family:'Inter',monospace;font-weight:700;letter-spacing:1px;">${c.inviteCode}</span>
+                    <span style="font-size:12px;color:var(--color-ink4);">👥 ${memberCount}명</span>
+                    <span style="font-size:12px;color:var(--color-ink4);">🎾 경기 ${matchCount}개</span>
+                    <span style="font-size:12px;color:var(--color-ink4);font-family:'Inter',monospace;font-weight:700;letter-spacing:1px;">${c.inviteCode}</span>
                   </div>
                 </div>
-                <svg width="16" height="16" fill="none" stroke="var(--cc-gray-600)" stroke-width="2" viewBox="0 0 24 24" style="flex-shrink:0;margin-top:4px;"><polyline points="9 18 15 12 9 6"/></svg>
+                <svg width="16" height="16" fill="none" stroke="var(--color-ink4)" stroke-width="2" viewBox="0 0 24 24" style="flex-shrink:0;margin-top:4px;"><polyline points="9 18 15 12 9 6"/></svg>
               </div>
             </div>
           `;
@@ -1203,7 +1203,7 @@ const CommunityDetail = {
     const memberNames = community.memberNames || {};
     const memberAvatars = community.memberIds.slice(0, 5).map(id => {
       const name = memberNames[id] || '?';
-      return `<div class="avatar avatar-sm" style="margin-left:-8px;border:2px solid var(--cc-card);">${name[0]}</div>`;
+      return `<div class="avatar avatar-sm" style="margin-left:-8px;border:2px solid var(--color-card);">${name[0]}</div>`;
     }).join('');
 
     // 경기 목록 렌더
@@ -1223,7 +1223,7 @@ const CommunityDetail = {
         <div class="match-card" style="margin-bottom:12px;" onclick="App.navigate('match-detail', {matchId:'${m.id}'})">
           <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
             <span class="match-status-badge ${status.class}">${status.label}</span>
-            <span style="font-size:11px;color:var(--cc-gray-400);padding:2px 8px;border-radius:999px;background:rgba(255,255,255,0.05);">${m.level}</span>
+            <span style="font-size:11px;color:var(--color-ink3);padding:2px 8px;border-radius:999px;background:rgba(255,255,255,0.05);">${m.level}</span>
           </div>
           <div class="match-title" style="margin-bottom:6px;">${m.title || m.venue}</div>
           <div class="match-info-row">${Icons.location} ${m.venue}</div>
@@ -1231,7 +1231,7 @@ const CommunityDetail = {
           <div class="match-card-footer">
             <div class="match-slots">
               <div class="slot-dots">${dots}</div>
-              <span style="font-size:12px;color:var(--cc-gray-400);margin-left:4px;">${filled}/${m.maxPlayers}</span>
+              <span style="font-size:12px;color:var(--color-ink3);margin-left:4px;">${filled}/${m.maxPlayers}</span>
             </div>
             <div class="match-price">${Utils.formatCost(m.perPersonCost)}</div>
           </div>
@@ -1247,10 +1247,10 @@ const CommunityDetail = {
             <div style="width:56px;height:56px;background:linear-gradient(135deg,rgba(200,255,0,0.2),rgba(200,255,0,0.05));border:1px solid rgba(200,255,0,0.2);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0;">🎾</div>
             <div style="flex:1;">
               <div style="font-size:18px;font-weight:800;margin-bottom:4px;">${community.name}</div>
-              ${community.description ? `<div style="font-size:13px;color:var(--cc-gray-400);margin-bottom:8px;">${community.description}</div>` : ''}
+              ${community.description ? `<div style="font-size:13px;color:var(--color-ink3);margin-bottom:8px;">${community.description}</div>` : ''}
               <div style="display:flex;align-items:center;gap:8px;margin-top:8px;">
                 <div style="display:flex;margin-left:8px;">${memberAvatars}</div>
-                <span style="font-size:13px;color:var(--cc-gray-400);">멤버 ${memberCount}명</span>
+                <span style="font-size:13px;color:var(--color-ink3);">멤버 ${memberCount}명</span>
               </div>
             </div>
           </div>
@@ -1258,8 +1258,8 @@ const CommunityDetail = {
           <!-- 초대 코드 -->
           <div style="margin-top:16px;padding:12px;background:rgba(200,255,0,0.05);border:1px dashed rgba(200,255,0,0.25);border-radius:12px;display:flex;align-items:center;justify-content:space-between;">
             <div>
-              <div style="font-size:11px;color:var(--cc-gray-600);margin-bottom:2px;">초대 코드</div>
-              <div style="font-size:20px;font-weight:900;font-family:'Inter',monospace;color:var(--cc-lime);letter-spacing:4px;">${community.inviteCode}</div>
+              <div style="font-size:11px;color:var(--color-ink4);margin-bottom:2px;">초대 코드</div>
+              <div style="font-size:20px;font-weight:900;font-family:'Inter',monospace;color:var(--color-lime);letter-spacing:4px;">${community.inviteCode}</div>
             </div>
             <button class="btn btn-secondary btn-sm" onclick="CommunityDetail.copyInviteCode('${community.inviteCode}')">
               복사
@@ -1277,12 +1277,12 @@ const CommunityDetail = {
             const isCommOwner = id === community.ownerId;
             const isMe = id === user?.id;
             return `
-              <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--cc-border);">
+              <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--color-border);">
                 <div class="avatar avatar-sm">${name[0]}</div>
                 <div style="flex:1;font-size:14px;font-weight:500;">
-                  ${name} ${isMe ? '<span style="font-size:11px;color:var(--cc-gray-600);">(나)</span>' : ''}
+                  ${name} ${isMe ? '<span style="font-size:11px;color:var(--color-ink4);">(나)</span>' : ''}
                 </div>
-                ${isCommOwner ? `<span style="font-size:10px;color:var(--cc-lime);font-weight:700;background:rgba(200,255,0,0.1);padding:2px 8px;border-radius:999px;">운영자</span>` : ''}
+                ${isCommOwner ? `<span style="font-size:10px;color:var(--color-lime);font-weight:700;background:rgba(200,255,0,0.1);padding:2px 8px;border-radius:999px;">운영자</span>` : ''}
               </div>
             `;
           }).join('')}
@@ -1302,7 +1302,7 @@ const CommunityDetail = {
       <!-- 운영자 전용 -->
       <div style="padding:var(--space-md);">
         <div class="card" style="padding:var(--space-md);border-color:rgba(200,255,0,0.2);">
-          <div style="font-size:12px;color:var(--cc-lime);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px;">운영자 메뉴</div>
+          <div style="font-size:12px;color:var(--color-lime);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px;">운영자 메뉴</div>
           <button class="btn btn-danger btn-full btn-sm" onclick="CommunityDetail.deleteCommunity('${community.id}')">
             커뮤니티 삭제
           </button>
@@ -1386,14 +1386,14 @@ const AccountSettings = {
       <div style="padding:var(--space-md);">
 
         <!-- ① 카카오페이 송금 링크 -->
-        <div style="font-size:12px;color:var(--cc-gray-600);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">💛 카카오페이 송금 링크</div>
+        <div style="font-size:12px;color:var(--color-ink4);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">💛 카카오페이 송금 링크</div>
         <div class="card" style="padding:var(--space-md);margin-bottom:var(--space-md);">
           ${pm.kakaoLink ? `
           <div style="background:rgba(255,232,18,0.08);border:1px solid rgba(255,232,18,0.25);border-radius:10px;padding:12px;margin-bottom:14px;display:flex;align-items:center;gap:10px;">
             <div style="font-size:20px;flex-shrink:0;">✅</div>
             <div style="flex:1;min-width:0;">
-              <div style="font-size:12px;color:var(--cc-kakao);font-weight:700;margin-bottom:2px;">등록됨</div>
-              <div style="font-size:11px;color:var(--cc-gray-400);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${pm.kakaoLink}</div>
+              <div style="font-size:12px;color:var(--color-kakao);font-weight:700;margin-bottom:2px;">등록됨</div>
+              <div style="font-size:11px;color:var(--color-ink3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${pm.kakaoLink}</div>
             </div>
             <button class="btn btn-danger btn-sm" onclick="AccountSettings.removeKakao()" style="flex-shrink:0;">삭제</button>
           </div>
@@ -1405,8 +1405,8 @@ const AccountSettings = {
               value="${pm.kakaoLink || ''}">
           </div>
           <div style="background:rgba(255,232,18,0.05);border-radius:8px;padding:10px 12px;margin-bottom:12px;">
-            <div style="font-size:12px;color:var(--cc-kakao);font-weight:700;margin-bottom:4px;">링크 가져오는 방법</div>
-            <div style="font-size:12px;color:var(--cc-gray-400);line-height:1.7;">
+            <div style="font-size:12px;color:var(--color-kakao);font-weight:700;margin-bottom:4px;">링크 가져오는 방법</div>
+            <div style="font-size:12px;color:var(--color-ink3);line-height:1.7;">
               카카오페이 앱 → 송금 → 내 송금 링크 → 링크 복사
             </div>
           </div>
@@ -1416,14 +1416,14 @@ const AccountSettings = {
         </div>
 
         <!-- ② 계좌 이체 -->
-        <div style="font-size:12px;color:var(--cc-gray-600);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">🏦 계좌 이체 정보</div>
+        <div style="font-size:12px;color:var(--color-ink4);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">🏦 계좌 이체 정보</div>
         <div class="card" style="padding:var(--space-md);margin-bottom:var(--space-md);">
           ${pm.accountNumber ? `
           <div style="background:rgba(74,222,128,0.05);border:1px solid rgba(74,222,128,0.2);border-radius:10px;padding:12px;margin-bottom:14px;">
             <div style="font-size:12px;color:#4ADE80;font-weight:700;margin-bottom:8px;">✅ 등록된 계좌</div>
             <div style="font-size:15px;font-weight:700;">${pm.bank}</div>
             <div style="font-size:14px;font-family:'Inter',monospace;letter-spacing:1px;margin-top:4px;">${pm.accountNumber}</div>
-            <div style="font-size:12px;color:var(--cc-gray-400);margin-top:4px;">예금주 ${pm.accountHolder}</div>
+            <div style="font-size:12px;color:var(--color-ink3);margin-top:4px;">예금주 ${pm.accountHolder}</div>
           </div>
           ` : ''}
           <div class="form-group">
@@ -1458,8 +1458,8 @@ const AccountSettings = {
 
         <!-- 안내 -->
         <div class="card" style="padding:var(--space-md);">
-          <div style="font-size:12px;color:var(--cc-gray-600);font-weight:700;margin-bottom:8px;">💡 안내</div>
-          <div style="font-size:13px;color:var(--cc-gray-400);line-height:1.8;">
+          <div style="font-size:12px;color:var(--color-ink4);font-weight:700;margin-bottom:8px;">💡 안내</div>
+          <div style="font-size:13px;color:var(--color-ink3);line-height:1.8;">
             • 카카오페이 링크 등록 시 참가자가 버튼 하나로 바로 송금 가능해요<br>
             • 계좌 이체 정보는 카카오페이가 없는 참가자를 위한 백업 수단이에요<br>
             • 둘 다 등록하면 결제 화면에 모두 표시돼요
@@ -1532,42 +1532,49 @@ const AccountSettings = {
 const CourtAlert = {
   _state: {
     alertOn: true,
-    courts: [],
+    courts: [],      // 장소(venue) 기준 중복 제거된 코트 목록
+    allSlots: [],    // API에서 받은 전체 슬롯 (폴링용)
     loading: false,
     error: null,
     search: '',
     areaFilter: [],
-    selectedIds: [],
+    selectedIds: [], // place_name 기준으로 선택
     days: [],
     timeStart: '07:00',
     timeEnd: '22:00',
+    lastStatuses: {}, // svcId → 마지막 상태 (변경 감지용)
+    pollTimer: null,
+    lastFetched: null,
   },
 
   AREAS: ['강남구','강동구','강서구','관악구','광진구','구로구','노원구','도봉구','동대문구','동작구','마포구','서대문구','서초구','성동구','성북구','송파구','양천구','영등포구','용산구','은평구','종로구','중구'],
   DAYS: ['일','월','화','수','목','금','토'],
   TIME_OPTIONS: ['06:00','07:00','08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00','22:00'],
+  POLL_INTERVAL: 5 * 60 * 1000, // 5분
 
+  // 데모 코트 목록 — 장소(venue) 단위, 날짜/시간 없음
   DEMO_COURTS: [
-    { svc_id:'S001', court_name:'잠실 한강공원 테니스장',     place_name:'잠실한강공원',      area:'송파구',   status:'접수중',  start_dt:'2026-06-28 09:00:00', svc_url:'https://yeyak.seoul.go.kr' },
-    { svc_id:'S002', court_name:'여의도 한강공원 테니스장',    place_name:'여의도한강공원',     area:'영등포구', status:'접수마감', start_dt:'2026-06-22 07:00:00', svc_url:'https://yeyak.seoul.go.kr' },
-    { svc_id:'S003', court_name:'반포 한강공원 테니스장',      place_name:'반포한강공원',       area:'서초구',   status:'접수중',  start_dt:'2026-06-29 10:00:00', svc_url:'https://yeyak.seoul.go.kr' },
-    { svc_id:'S004', court_name:'뚝섬 한강공원 테니스장',      place_name:'뚝섬한강공원',       area:'광진구',   status:'접수마감', start_dt:'2026-06-23 19:00:00', svc_url:'https://yeyak.seoul.go.kr' },
-    { svc_id:'S005', court_name:'망원 한강공원 테니스장',      place_name:'망원한강공원',       area:'마포구',   status:'접수중',  start_dt:'2026-06-25 18:00:00', svc_url:'https://yeyak.seoul.go.kr' },
-    { svc_id:'S006', court_name:'목동 종합운동장 테니스장',    place_name:'목동종합운동장',     area:'양천구',   status:'예약불가', start_dt:'2026-06-24 09:00:00', svc_url:'https://yeyak.seoul.go.kr' },
-    { svc_id:'S007', court_name:'광나루 한강공원 테니스장',    place_name:'광나루한강공원',     area:'광진구',   status:'접수중',  start_dt:'2026-06-27 07:00:00', svc_url:'https://yeyak.seoul.go.kr' },
-    { svc_id:'S008', court_name:'노원 공릉 테니스장',          place_name:'노원구민체육센터',   area:'노원구',   status:'접수마감', start_dt:'2026-06-22 20:00:00', svc_url:'https://yeyak.seoul.go.kr' },
-    { svc_id:'S009', court_name:'강서 한강공원 테니스장',      place_name:'강서한강공원',       area:'강서구',   status:'접수중',  start_dt:'2026-06-23 10:00:00', svc_url:'https://yeyak.seoul.go.kr' },
-    { svc_id:'S010', court_name:'용산 가족공원 테니스장',      place_name:'용산가족공원',       area:'용산구',   status:'접수마감', start_dt:'2026-06-26 18:00:00', svc_url:'https://yeyak.seoul.go.kr' },
-    { svc_id:'S011', court_name:'성동구 테니스장',             place_name:'성동구민체육센터',   area:'성동구',   status:'접수중',  start_dt:'2026-06-28 07:00:00', svc_url:'https://yeyak.seoul.go.kr' },
-    { svc_id:'S012', court_name:'강남 구민체육센터 테니스장',  place_name:'강남구민체육센터',   area:'강남구',   status:'접수마감', start_dt:'2026-06-22 19:00:00', svc_url:'https://yeyak.seoul.go.kr' },
-    { svc_id:'S013', court_name:'서초 학생체육관 테니스장',    place_name:'서초학생체육관',     area:'서초구',   status:'접수중',  start_dt:'2026-06-29 08:00:00', svc_url:'https://yeyak.seoul.go.kr' },
-    { svc_id:'S014', court_name:'은평 체육문화센터 테니스장',  place_name:'은평체육문화센터',   area:'은평구',   status:'접수마감', start_dt:'2026-06-25 07:00:00', svc_url:'https://yeyak.seoul.go.kr' },
-    { svc_id:'S015', court_name:'서대문구 테니스장',           place_name:'서대문구민체육센터', area:'서대문구', status:'접수중',  start_dt:'2026-06-27 20:00:00', svc_url:'https://yeyak.seoul.go.kr' },
-    { svc_id:'S016', court_name:'마포 체육관 테니스장',        place_name:'마포구민체육관',     area:'마포구',   status:'접수마감', start_dt:'2026-06-26 09:00:00', svc_url:'https://yeyak.seoul.go.kr' },
-    { svc_id:'S017', court_name:'도봉구 방학 테니스장',        place_name:'방학체육관',         area:'도봉구',   status:'접수중',  start_dt:'2026-06-28 18:00:00', svc_url:'https://yeyak.seoul.go.kr' },
-    { svc_id:'S018', court_name:'동작구 테니스장',             place_name:'동작구민체육센터',   area:'동작구',   status:'접수마감', start_dt:'2026-06-23 20:00:00', svc_url:'https://yeyak.seoul.go.kr' },
-    { svc_id:'S019', court_name:'관악구 봉천 테니스장',        place_name:'관악구민체육센터',   area:'관악구',   status:'접수중',  start_dt:'2026-06-30 09:00:00', svc_url:'https://yeyak.seoul.go.kr' },
-    { svc_id:'S020', court_name:'강동구 테니스장',             place_name:'강동구민체육관',     area:'강동구',   status:'접수마감', start_dt:'2026-06-24 19:00:00', svc_url:'https://yeyak.seoul.go.kr' },
+    { svc_id:'잠실한강공원',       court_name:'잠실 한강공원 테니스장',     place_name:'잠실한강공원',       area:'송파구',   svc_url:'https://yeyak.seoul.go.kr' },
+    { svc_id:'여의도한강공원',     court_name:'여의도 한강공원 테니스장',   place_name:'여의도한강공원',     area:'영등포구', svc_url:'https://yeyak.seoul.go.kr' },
+    { svc_id:'반포한강공원',       court_name:'반포 한강공원 테니스장',     place_name:'반포한강공원',       area:'서초구',   svc_url:'https://yeyak.seoul.go.kr' },
+    { svc_id:'뚝섬한강공원',       court_name:'뚝섬 한강공원 테니스장',    place_name:'뚝섬한강공원',       area:'광진구',   svc_url:'https://yeyak.seoul.go.kr' },
+    { svc_id:'망원한강공원',       court_name:'망원 한강공원 테니스장',     place_name:'망원한강공원',       area:'마포구',   svc_url:'https://yeyak.seoul.go.kr' },
+    { svc_id:'목동종합운동장',     court_name:'목동 종합운동장 테니스장',   place_name:'목동종합운동장',     area:'양천구',   svc_url:'https://yeyak.seoul.go.kr' },
+    { svc_id:'광나루한강공원',     court_name:'광나루 한강공원 테니스장',   place_name:'광나루한강공원',     area:'광진구',   svc_url:'https://yeyak.seoul.go.kr' },
+    { svc_id:'노원구민체육센터',   court_name:'노원 공릉 테니스장',         place_name:'노원구민체육센터',   area:'노원구',   svc_url:'https://yeyak.seoul.go.kr' },
+    { svc_id:'강서한강공원',       court_name:'강서 한강공원 테니스장',     place_name:'강서한강공원',       area:'강서구',   svc_url:'https://yeyak.seoul.go.kr' },
+    { svc_id:'용산가족공원',       court_name:'용산 가족공원 테니스장',     place_name:'용산가족공원',       area:'용산구',   svc_url:'https://yeyak.seoul.go.kr' },
+    { svc_id:'성동구민체육센터',   court_name:'성동구 테니스장',            place_name:'성동구민체육센터',   area:'성동구',   svc_url:'https://yeyak.seoul.go.kr' },
+    { svc_id:'강남구민체육센터',   court_name:'강남 구민체육센터 테니스장', place_name:'강남구민체육센터',   area:'강남구',   svc_url:'https://yeyak.seoul.go.kr' },
+    { svc_id:'서초학생체육관',     court_name:'서초 학생체육관 테니스장',   place_name:'서초학생체육관',     area:'서초구',   svc_url:'https://yeyak.seoul.go.kr' },
+    { svc_id:'은평체육문화센터',   court_name:'은평 체육문화센터 테니스장', place_name:'은평체육문화센터',   area:'은평구',   svc_url:'https://yeyak.seoul.go.kr' },
+    { svc_id:'서대문구민체육센터', court_name:'서대문구 테니스장',          place_name:'서대문구민체육센터', area:'서대문구', svc_url:'https://yeyak.seoul.go.kr' },
+    { svc_id:'마포구민체육관',     court_name:'마포 체육관 테니스장',       place_name:'마포구민체육관',     area:'마포구',   svc_url:'https://yeyak.seoul.go.kr' },
+    { svc_id:'방학체육관',         court_name:'도봉구 방학 테니스장',       place_name:'방학체육관',         area:'도봉구',   svc_url:'https://yeyak.seoul.go.kr' },
+    { svc_id:'동작구민체육센터',   court_name:'동작구 테니스장',            place_name:'동작구민체육센터',   area:'동작구',   svc_url:'https://yeyak.seoul.go.kr' },
+    { svc_id:'관악구민체육센터',   court_name:'관악구 봉천 테니스장',       place_name:'관악구민체육센터',   area:'관악구',   svc_url:'https://yeyak.seoul.go.kr' },
+    { svc_id:'강동구민체육관',     court_name:'강동구 테니스장',            place_name:'강동구민체육관',     area:'강동구',   svc_url:'https://yeyak.seoul.go.kr' },
+    { svc_id:'목동운동장',         court_name:'목동 테니스장 (YCS)',        place_name:'목동운동장',         area:'양천구',   svc_url:'https://www.ycs.or.kr' },
   ],
 
   async render() {
@@ -1579,6 +1586,10 @@ const CourtAlert = {
       this._state.loading = false;
     }
     this._renderContent();
+    // 알림 ON + API 키 있으면 폴링 시작
+    if (this._state.alertOn && Store.get('seoul_api_key')) {
+      this._startPolling();
+    }
   },
 
   _loadSettings() {
@@ -1589,6 +1600,9 @@ const CourtAlert = {
     st.days        = s.days        ?? [];
     st.timeStart   = s.timeStart   ?? '07:00';
     st.timeEnd     = s.timeEnd     ?? '22:00';
+    // 이전 상태 복원 (변경 감지 연속성)
+    const saved = Store.get('court_alert_statuses') || {};
+    if (Object.keys(saved).length) st.lastStatuses = saved;
   },
 
   saveSettings() {
@@ -1600,6 +1614,12 @@ const CourtAlert = {
       timeStart:   st.timeStart,
       timeEnd:     st.timeEnd,
     });
+    if (st.alertOn && Store.get('seoul_api_key')) {
+      this._startPolling();
+      this._requestNotifPermission();
+    } else {
+      this._stopPolling();
+    }
     App.addNotification({
       type: 'info',
       title: '🔔 코트 취소 알림 설정 완료',
@@ -1608,38 +1628,174 @@ const CourtAlert = {
     App.showToast('알림 설정이 저장됐어요! 취소 자리가 나면 알려드릴게요 🎾', 'success');
   },
 
+  async _requestNotifPermission() {
+    if ('Notification' in window && Notification.permission === 'default') {
+      await Notification.requestPermission();
+      this._renderContent();
+    }
+  },
+
+  // ── 서울시 API 페치 ───────────────────────────
   async _fetchCourts() {
     const apiKey = Store.get('seoul_api_key');
     if (!apiKey) {
-      this._state.courts = this.DEMO_COURTS;
-      this._state.error  = 'demo';
+      this._state.courts   = this.DEMO_COURTS;
+      this._state.allSlots = [];
+      this._state.error    = 'demo';
       return;
     }
     try {
-      const seoulUrl = `http://openapi.seoul.go.kr:8088/${apiKey}/json/ListPublicReservationSport/1/500/테니스`;
+      const seoulUrl = `http://openapi.seoul.go.kr:8088/${apiKey}/json/ListPublicReservationSport/1/1000/테니스`;
       const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(seoulUrl)}`;
-      const ctrl     = new AbortController();
-      const tid      = setTimeout(() => ctrl.abort(), 8000);
-      const res      = await fetch(proxyUrl, { signal: ctrl.signal });
+      const ctrl = new AbortController();
+      const tid  = setTimeout(() => ctrl.abort(), 12000);
+      const res  = await fetch(proxyUrl, { signal: ctrl.signal });
       clearTimeout(tid);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       const rows = data?.ListPublicReservationSport?.row ?? [];
       if (!rows.length) throw new Error('빈 응답');
-      this._state.courts = rows.map(r => ({
+
+      // 전체 슬롯 저장
+      this._state.allSlots = rows.map(r => ({
         svc_id:     r.SVCID,
-        court_name: r.SVCNM,
         place_name: r.PLACENM,
         area:       r.AREANM,
         status:     r.REVSTATUS,
         start_dt:   r.SVCOPNBGNDT,
         svc_url:    r.SVCURL,
       }));
-      this._state.error = null;
+
+      // 처음 로드 시 현재 상태를 기준점으로 저장
+      this._state.allSlots.forEach(s => {
+        if (this._state.lastStatuses[s.svc_id] === undefined) {
+          this._state.lastStatuses[s.svc_id] = s.status;
+        }
+      });
+      Store.set('court_alert_statuses', this._state.lastStatuses);
+
+      // place_name 기준 중복 제거 → venue 목록
+      const seen = new Set();
+      this._state.courts = [];
+      this._state.allSlots.forEach(s => {
+        if (!seen.has(s.place_name)) {
+          seen.add(s.place_name);
+          this._state.courts.push({
+            svc_id:     s.place_name,
+            court_name: s.place_name,
+            place_name: s.place_name,
+            area:       s.area,
+            svc_url:    s.svc_url,
+          });
+        }
+      });
+
+      this._state.error       = null;
+      this._state.lastFetched = new Date();
     } catch {
-      this._state.courts = this.DEMO_COURTS;
-      this._state.error  = 'api_error';
+      this._state.courts   = this.DEMO_COURTS;
+      this._state.allSlots = [];
+      this._state.error    = 'api_error';
     }
+  },
+
+  // ── 5분 폴링 ──────────────────────────────────
+  _startPolling() {
+    if (this._state.pollTimer) return; // 이미 실행 중
+    this._state.pollTimer = setInterval(() => CourtAlert._poll(), this.POLL_INTERVAL);
+  },
+
+  _stopPolling() {
+    if (this._state.pollTimer) {
+      clearInterval(this._state.pollTimer);
+      this._state.pollTimer = null;
+    }
+  },
+
+  async _poll() {
+    const st = this._state;
+    if (!st.alertOn) return;
+    const apiKey = Store.get('seoul_api_key');
+    if (!apiKey) return;
+
+    try {
+      const seoulUrl = `http://openapi.seoul.go.kr:8088/${apiKey}/json/ListPublicReservationSport/1/1000/테니스`;
+      const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(seoulUrl)}`;
+      const ctrl = new AbortController();
+      const tid  = setTimeout(() => ctrl.abort(), 12000);
+      const res  = await fetch(proxyUrl, { signal: ctrl.signal });
+      clearTimeout(tid);
+      if (!res.ok) return;
+      const data = await res.json();
+      const rows = data?.ListPublicReservationSport?.row ?? [];
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const newAlerts = [];
+
+      rows.forEach(r => {
+        const svcId     = r.SVCID;
+        const newStatus = r.REVSTATUS;
+        const oldStatus = st.lastStatuses[svcId];
+
+        // 이전에 마감/불가였다가 이제 접수중으로 바뀐 슬롯 → 취소 자리
+        if (oldStatus !== undefined && oldStatus !== '접수중' && newStatus === '접수중') {
+          const slotDate = r.SVCOPNBGNDT ? new Date(r.SVCOPNBGNDT) : null;
+
+          // 오늘 이전 날짜는 무시
+          if (slotDate && slotDate < today) {
+            st.lastStatuses[svcId] = newStatus;
+            return;
+          }
+
+          // 요일 필터
+          const dayOk = !st.days.length || (slotDate && st.days.includes(slotDate.getDay()));
+
+          // 시간 필터
+          const hour   = slotDate ? `${String(slotDate.getHours()).padStart(2,'0')}:00` : null;
+          const timeOk = !hour || (hour >= st.timeStart && hour <= st.timeEnd);
+
+          // 코트 필터 (place_name 기준)
+          const venueOk = !st.selectedIds.length || st.selectedIds.includes(r.PLACENM);
+
+          if (dayOk && timeOk && venueOk) {
+            newAlerts.push({ name: r.SVCNM, place: r.PLACENM, area: r.AREANM, date: slotDate, url: r.SVCURL });
+          }
+        }
+
+        st.lastStatuses[svcId] = newStatus;
+      });
+
+      Store.set('court_alert_statuses', st.lastStatuses);
+      st.lastFetched = new Date();
+
+      // 페이지에 있으면 마지막 확인 시간 업데이트
+      const indicator = document.getElementById('courtAlertLastFetch');
+      if (indicator) indicator.textContent = `마지막 확인: ${this._fmtTime(st.lastFetched)}`;
+
+      if (newAlerts.length) this._sendAlerts(newAlerts);
+    } catch { /* 폴링 실패는 무시 */ }
+  },
+
+  _sendAlerts(alerts) {
+    alerts.forEach(a => {
+      const dayStr = a.date
+        ? `${a.date.getMonth()+1}/${a.date.getDate()}(${this.DAYS[a.date.getDay()]}) ${String(a.date.getHours()).padStart(2,'0')}:00`
+        : '';
+      const body = `${a.place}${dayStr ? ' · ' + dayStr : ''}에 취소 자리가 생겼어요!`;
+      App.addNotification({ type: 'court_alert', title: '🎾 취소 자리 발생!', body });
+      if ('Notification' in window && Notification.permission === 'granted') {
+        const n = new Notification('🎾 코트 취소 자리 발생!', { body, tag: a.url });
+        n.onclick = () => window.open(a.url, '_blank');
+      }
+    });
+    App.showToast(`🎾 취소 자리 ${alerts.length}개! 알림을 확인하세요`, 'success');
+  },
+
+  _fmtTime(d) {
+    if (!d) return '-';
+    return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
   },
 
   _getFiltered() {
@@ -1647,10 +1803,7 @@ const CourtAlert = {
     const q = search.trim().toLowerCase();
     return courts.filter(c => {
       const okArea   = !areaFilter.length || areaFilter.includes(c.area);
-      const okSearch = !q
-        || c.court_name.toLowerCase().includes(q)
-        || c.area.includes(q)
-        || c.place_name.toLowerCase().includes(q);
+      const okSearch = !q || c.court_name.toLowerCase().includes(q) || c.area.includes(q) || (c.place_name||'').toLowerCase().includes(q);
       return okArea && okSearch;
     });
   },
@@ -1664,127 +1817,115 @@ const CourtAlert = {
     const savedScroll = listEl ? listEl.scrollTop : 0;
 
     if (st.loading) {
-      el.innerHTML = `
-        <div style="padding:16px;">
-          <div class="skeleton" style="height:72px;border-radius:14px;margin-bottom:12px;"></div>
-          <div class="skeleton" style="height:48px;border-radius:14px;margin-bottom:12px;"></div>
-          <div class="skeleton" style="height:300px;border-radius:14px;margin-bottom:12px;"></div>
-          <div class="skeleton" style="height:80px;border-radius:14px;"></div>
-        </div>`;
+      el.innerHTML = `<div style="padding:16px;">
+        <div class="skeleton" style="height:72px;border-radius:14px;margin-bottom:12px;"></div>
+        <div class="skeleton" style="height:48px;border-radius:14px;margin-bottom:12px;"></div>
+        <div class="skeleton" style="height:300px;border-radius:14px;margin-bottom:12px;"></div>
+        <div class="skeleton" style="height:80px;border-radius:14px;"></div>
+      </div>`;
       return;
     }
 
-    const filtered  = this._getFiltered();
-    const available = filtered.filter(c => c.status === '접수중').length;
+    const notifGranted = 'Notification' in window && Notification.permission === 'granted';
+    const notifDenied  = 'Notification' in window && Notification.permission === 'denied';
 
     el.innerHTML = `<div style="padding:0 16px 32px;">
 
-      <div style="display:flex;align-items:center;justify-content:space-between;background:var(--cc-card);border:1px solid var(--cc-border);border-radius:16px;padding:16px 20px;margin-bottom:12px;">
+      <!-- 알림 ON/OFF -->
+      <div style="display:flex;align-items:center;justify-content:space-between;background:var(--color-card);border:1px solid var(--color-border);border-radius:16px;padding:16px 20px;margin-bottom:12px;">
         <div>
           <div style="font-size:15px;font-weight:700;">취소 알림 받기</div>
-          <div style="font-size:12px;color:var(--cc-gray-400);margin-top:2px;">서울시 공공 테니스장 취소 자리 알림</div>
+          <div style="font-size:12px;color:var(--color-ink3);margin-top:2px;">서울시 공공 테니스장 취소 자리 실시간 알림</div>
         </div>
-        <button onclick="CourtAlert.toggleAlert()" style="padding:8px 20px;border-radius:999px;border:1.5px solid ${st.alertOn ? 'var(--cc-lime)' : 'var(--cc-border)'};background:${st.alertOn ? 'rgba(200,255,0,0.1)' : 'transparent'};color:${st.alertOn ? 'var(--cc-lime)' : 'var(--cc-gray-400)'};font-weight:800;font-size:14px;cursor:pointer;">
+        <button onclick="CourtAlert.toggleAlert()" style="padding:8px 20px;border-radius:999px;border:1.5px solid ${st.alertOn ? 'var(--color-lime)' : 'var(--color-border)'};background:${st.alertOn ? 'rgba(200,255,0,0.1)' : 'transparent'};color:${st.alertOn ? 'var(--color-lime)' : 'var(--color-ink3)'};font-weight:800;font-size:14px;cursor:pointer;">
           ${st.alertOn ? 'ON' : 'OFF'}
         </button>
       </div>
 
+      <!-- 상태 배너 -->
       ${st.error === 'demo' ? `
-        <div style="display:flex;align-items:center;gap:10px;background:rgba(61,139,255,0.08);border:1px solid rgba(61,139,255,0.2);border-radius:12px;padding:11px 14px;margin-bottom:16px;">
-          <span style="font-size:13px;color:#3D8BFF;flex:1;">ℹ️ 데모 데이터 표시 중 — 실시간 연동은 서울시 API 키가 필요해요</span>
-          <button onclick="CourtAlert.showApiKeyInput()" style="font-size:12px;color:var(--cc-lime);font-weight:700;background:none;border:none;cursor:pointer;white-space:nowrap;">키 등록 →</button>
+        <div style="display:flex;align-items:center;gap:10px;background:rgba(61,139,255,0.08);border:1px solid rgba(61,139,255,0.2);border-radius:12px;padding:11px 14px;margin-bottom:12px;">
+          <span style="font-size:13px;color:#3D8BFF;flex:1;">ℹ️ 데모 코트 목록 표시 중 — 실시간 알림은 서울시 API 키가 필요해요</span>
+          <button onclick="CourtAlert.showApiKeyInput()" style="font-size:12px;color:var(--color-lime);font-weight:700;background:none;border:none;cursor:pointer;white-space:nowrap;">키 등록 →</button>
         </div>
       ` : st.error === 'api_error' ? `
-        <div style="background:rgba(255,71,87,0.08);border:1px solid rgba(255,71,87,0.2);border-radius:12px;padding:11px 14px;margin-bottom:16px;">
-          <span style="font-size:13px;color:var(--cc-red);">⚠️ API 연결 실패 — 데모 데이터로 표시 중</span>
+        <div style="background:rgba(255,71,87,0.08);border:1px solid rgba(255,71,87,0.2);border-radius:12px;padding:11px 14px;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+          <span style="font-size:13px;color:var(--color-danger-fg);flex:1;">⚠️ API 연결 실패 — 데모 코트 표시 중</span>
+          <button onclick="CourtAlert.refresh()" style="font-size:12px;color:var(--color-ink3);background:none;border:none;cursor:pointer;">🔄 재시도</button>
         </div>
       ` : `
-        <div style="display:flex;align-items:center;gap:8px;background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.2);border-radius:12px;padding:11px 14px;margin-bottom:16px;">
-          <div style="width:7px;height:7px;border-radius:50%;background:#4ADE80;flex-shrink:0;"></div>
-          <span style="font-size:13px;color:#4ADE80;font-weight:600;flex:1;">실시간 연동 중 · 접수중 ${available}개</span>
-          <button onclick="CourtAlert.refresh()" style="font-size:12px;color:var(--cc-gray-400);background:none;border:none;cursor:pointer;">🔄 새로고침</button>
+        <div style="display:flex;align-items:center;gap:8px;background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.2);border-radius:12px;padding:11px 14px;margin-bottom:12px;">
+          <div style="width:7px;height:7px;border-radius:50%;background:#4ADE80;flex-shrink:0;${st.alertOn ? 'animation:pulse 2s infinite;' : ''}"></div>
+          <span style="font-size:13px;color:#4ADE80;font-weight:600;flex:1;">${st.alertOn ? '5분마다 모니터링 중' : '알림 꺼짐'} · ${st.courts.length}개 코트</span>
+          <span id="courtAlertLastFetch" style="font-size:11px;color:var(--color-ink3);">${st.lastFetched ? '확인: ' + this._fmtTime(st.lastFetched) : ''}</span>
+          <button onclick="CourtAlert.refresh()" style="font-size:12px;color:var(--color-ink3);background:none;border:none;cursor:pointer;padding:0 4px;">🔄</button>
         </div>
       `}
 
+      <!-- 브라우저 알림 권한 -->
+      ${!notifGranted && !notifDenied ? `
+        <div style="display:flex;align-items:center;gap:10px;background:rgba(200,255,0,0.05);border:1px solid rgba(200,255,0,0.2);border-radius:12px;padding:11px 14px;margin-bottom:16px;">
+          <span style="font-size:13px;flex:1;">🔔 브라우저 알림 허용 시 앱 밖에서도 즉시 알림을 받을 수 있어요</span>
+          <button onclick="CourtAlert.requestNotifPermission()" style="font-size:12px;color:var(--color-lime);font-weight:700;background:none;border:none;cursor:pointer;white-space:nowrap;">허용 →</button>
+        </div>
+      ` : notifGranted ? `
+        <div style="font-size:12px;color:var(--color-ink3);margin-bottom:16px;">🔔 브라우저 알림 허용됨</div>
+      ` : ''}
+
+      <!-- 코트 선택 -->
       <div style="margin-bottom:24px;">
-        <div class="section-title" style="margin-bottom:12px;">📍 알림 받을 코트 <span style="font-size:12px;font-weight:400;color:var(--cc-gray-400);">(미선택 시 전체)</span></div>
+        <div class="section-title" style="margin-bottom:12px;">📍 알림 받을 코트 <span style="font-size:12px;font-weight:400;color:var(--color-ink3);">(미선택 시 전체)</span></div>
 
         <div style="overflow-x:auto;padding-bottom:8px;margin-bottom:10px;-webkit-overflow-scrolling:touch;">
           <div style="display:flex;gap:6px;width:max-content;">
             ${this.AREAS.map(a => {
               const on = st.areaFilter.includes(a);
-              return `<button onclick="CourtAlert.toggleArea('${a}')" style="padding:5px 12px;border-radius:999px;border:1.5px solid ${on ? 'var(--cc-lime)' : 'var(--cc-border)'};background:${on ? 'rgba(200,255,0,0.1)' : 'var(--cc-card)'};color:${on ? 'var(--cc-lime)' : 'var(--cc-gray-400)'};font-size:12px;font-weight:600;white-space:nowrap;cursor:pointer;">${a}</button>`;
+              return `<button onclick="CourtAlert.toggleArea('${a}')" style="padding:5px 12px;border-radius:999px;border:1.5px solid ${on ? 'var(--color-lime)' : 'var(--color-border)'};background:${on ? 'rgba(200,255,0,0.1)' : 'var(--color-card)'};color:${on ? 'var(--color-lime)' : 'var(--color-ink3)'};font-size:12px;font-weight:600;white-space:nowrap;cursor:pointer;">${a}</button>`;
             }).join('')}
           </div>
         </div>
 
         <div style="position:relative;margin-bottom:10px;">
-          <svg style="position:absolute;left:14px;top:50%;transform:translateY(-50%);pointer-events:none;" width="15" height="15" fill="none" stroke="var(--cc-gray-400)" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input id="courtAlertSearch" type="text" class="form-input" placeholder="테니스장 이름 검색..." value="${this._esc(st.search)}" oninput="CourtAlert.setSearch(this.value)" style="padding-left:40px;">
+          <svg style="position:absolute;left:14px;top:50%;transform:translateY(-50%);pointer-events:none;" width="15" height="15" fill="none" stroke="var(--color-ink3)" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input id="courtAlertSearch" type="text" class="form-input" placeholder="테니스장 이름 검색..." value="${this._esc(st.search)}" style="padding-left:40px;">
         </div>
 
-        ${st.selectedIds.length ? `
-          <div style="font-size:12px;color:var(--cc-lime);font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:8px;">
-            ✓ ${st.selectedIds.length}개 코트 선택됨
-            <button onclick="CourtAlert.clearSel()" style="color:var(--cc-gray-400);font-size:11px;background:none;border:none;cursor:pointer;">전체 해제</button>
-          </div>
-        ` : ''}
-
-        <div id="courtAlertList" style="display:flex;flex-direction:column;gap:7px;max-height:280px;overflow-y:auto;">
-          ${filtered.length === 0
-            ? `<div style="text-align:center;padding:40px 0;color:var(--cc-gray-400);font-size:14px;">검색 결과가 없어요</div>`
-            : filtered.map(c => {
-                const sel  = st.selectedIds.includes(c.svc_id);
-                const open = c.status === '접수중';
-                const dt   = c.start_dt ? new Date(c.start_dt) : null;
-                const dtStr = dt
-                  ? `${dt.getMonth()+1}/${dt.getDate()}(${['일','월','화','수','목','금','토'][dt.getDay()]}) ${String(dt.getHours()).padStart(2,'0')}:00`
-                  : '';
-                return `<button onclick="CourtAlert.toggleCourt('${c.svc_id}')" style="display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:12px;border:1.5px solid ${sel ? 'var(--cc-lime)' : 'var(--cc-border)'};background:${sel ? 'rgba(200,255,0,0.04)' : 'var(--cc-card)'};cursor:pointer;text-align:left;width:100%;">
-                    <div style="width:20px;height:20px;border-radius:50%;border:2px solid ${sel ? 'var(--cc-lime)' : 'var(--cc-border)'};background:${sel ? 'var(--cc-lime)' : 'transparent'};flex-shrink:0;display:flex;align-items:center;justify-content:center;">
-                      ${sel ? `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#0A1628" stroke-width="3.5"><polyline points="20 6 9 17 4 12"/></svg>` : ''}
-                    </div>
-                    <div style="flex:1;min-width:0;">
-                      <div style="font-size:13px;font-weight:700;color:var(--cc-text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${c.court_name}</div>
-                      <div style="font-size:11px;color:var(--cc-gray-400);margin-top:1px;">${c.area} · ${dtStr}</div>
-                    </div>
-                    <span style="flex-shrink:0;font-size:11px;font-weight:700;padding:3px 8px;border-radius:999px;background:${open ? 'rgba(74,222,128,0.12)' : 'rgba(156,163,175,0.1)'};color:${open ? '#4ADE80' : 'var(--cc-gray-400)'};">${c.status}</span>
-                  </button>`;
-              }).join('')
-          }
-        </div>
+        <div id="courtAlertSelCount"></div>
+        <div id="courtAlertList" style="display:flex;flex-direction:column;gap:7px;max-height:280px;overflow-y:auto;"></div>
       </div>
 
+      <!-- 요일 선택 -->
       <div style="margin-bottom:24px;">
-        <div class="section-title" style="margin-bottom:12px;">📅 원하는 요일 <span style="font-size:12px;font-weight:400;color:var(--cc-gray-400);">(미선택 시 매일)</span></div>
+        <div class="section-title" style="margin-bottom:12px;">📅 원하는 요일 <span style="font-size:12px;font-weight:400;color:var(--color-ink3);">(미선택 시 매일)</span></div>
         <div style="display:flex;gap:8px;">
           ${this.DAYS.map((d, i) => {
             const on = st.days.includes(i);
-            return `<button onclick="CourtAlert.toggleDay(${i})" style="width:40px;height:40px;border-radius:50%;border:1.5px solid ${on ? 'var(--cc-lime)' : 'var(--cc-border)'};background:${on ? 'rgba(200,255,0,0.1)' : 'var(--cc-card)'};color:${on ? 'var(--cc-lime)' : 'var(--cc-gray-400)'};font-size:13px;font-weight:700;cursor:pointer;">${d}</button>`;
+            return `<button onclick="CourtAlert.toggleDay(${i})" style="width:40px;height:40px;border-radius:50%;border:1.5px solid ${on ? 'var(--color-lime)' : 'var(--color-border)'};background:${on ? 'rgba(200,255,0,0.1)' : 'var(--color-card)'};color:${on ? 'var(--color-lime)' : 'var(--color-ink3)'};font-size:13px;font-weight:700;cursor:pointer;">${d}</button>`;
           }).join('')}
         </div>
       </div>
 
+      <!-- 시간 선택 -->
       <div style="margin-bottom:24px;">
         <div class="section-title" style="margin-bottom:12px;">⏰ 원하는 시간대</div>
         <div style="margin-bottom:12px;">
-          <div style="font-size:12px;color:var(--cc-gray-400);font-weight:600;margin-bottom:8px;">시작</div>
+          <div style="font-size:12px;color:var(--color-ink3);font-weight:600;margin-bottom:8px;">시작</div>
           <div style="overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch;">
             <div style="display:flex;gap:6px;width:max-content;">
               ${this.TIME_OPTIONS.filter(t => t <= st.timeEnd).map(t => {
                 const on = st.timeStart === t;
-                return `<button onclick="CourtAlert.setTimeStart('${t}')" style="padding:6px 14px;border-radius:999px;border:1.5px solid ${on ? 'var(--cc-lime)' : 'var(--cc-border)'};background:${on ? 'rgba(200,255,0,0.1)' : 'var(--cc-card)'};color:${on ? 'var(--cc-lime)' : 'var(--cc-gray-400)'};font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">${t}</button>`;
+                return `<button onclick="CourtAlert.setTimeStart('${t}')" style="padding:6px 14px;border-radius:999px;border:1.5px solid ${on ? 'var(--color-lime)' : 'var(--color-border)'};background:${on ? 'rgba(200,255,0,0.1)' : 'var(--color-card)'};color:${on ? 'var(--color-lime)' : 'var(--color-ink3)'};font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">${t}</button>`;
               }).join('')}
             </div>
           </div>
         </div>
         <div>
-          <div style="font-size:12px;color:var(--cc-gray-400);font-weight:600;margin-bottom:8px;">종료</div>
+          <div style="font-size:12px;color:var(--color-ink3);font-weight:600;margin-bottom:8px;">종료</div>
           <div style="overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch;">
             <div style="display:flex;gap:6px;width:max-content;">
               ${this.TIME_OPTIONS.filter(t => t >= st.timeStart).map(t => {
                 const on = st.timeEnd === t;
-                return `<button onclick="CourtAlert.setTimeEnd('${t}')" style="padding:6px 14px;border-radius:999px;border:1.5px solid ${on ? 'var(--cc-lime)' : 'var(--cc-border)'};background:${on ? 'rgba(200,255,0,0.1)' : 'var(--cc-card)'};color:${on ? 'var(--cc-lime)' : 'var(--cc-gray-400)'};font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">${t}</button>`;
+                return `<button onclick="CourtAlert.setTimeEnd('${t}')" style="padding:6px 14px;border-radius:999px;border:1.5px solid ${on ? 'var(--color-lime)' : 'var(--color-border)'};background:${on ? 'rgba(200,255,0,0.1)' : 'var(--color-card)'};color:${on ? 'var(--color-lime)' : 'var(--color-ink3)'};font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">${t}</button>`;
               }).join('')}
             </div>
           </div>
@@ -1798,33 +1939,79 @@ const CourtAlert = {
       </button>
     </div>`;
 
+    this._renderCourtList();
+
     const newListEl = document.getElementById('courtAlertList');
     if (newListEl && savedScroll) newListEl.scrollTop = savedScroll;
+
+    const searchEl = document.getElementById('courtAlertSearch');
+    if (searchEl) {
+      searchEl.addEventListener('input', e => { if (!e.isComposing) CourtAlert.setSearch(e.target.value); });
+      searchEl.addEventListener('compositionend', e => CourtAlert.setSearch(e.target.value));
+    }
   },
 
   _renderSummary() {
     const st  = this._state;
     const sel = st.selectedIds.map(id => (st.courts.find(c => c.svc_id === id)?.court_name || id));
     const courtTxt = !sel.length    ? '전체 코트' : sel.length <= 2 ? sel.join(', ') : `${sel[0]} 외 ${sel.length - 1}개`;
-    const dayTxt   = !st.days.length ? '매일'      : st.days.map(d => this.DAYS[d]).join(' · ');
+    const dayTxt   = !st.days.length ? '매일'     : st.days.map(d => this.DAYS[d]).join(' · ');
     const timeTxt  = `${st.timeStart} ~ ${st.timeEnd}`;
     return `
       <div style="background:rgba(200,255,0,0.04);border:1px solid rgba(200,255,0,0.18);border-radius:16px;padding:16px;margin-bottom:16px;">
-        <div style="font-size:11px;color:var(--cc-lime);font-weight:800;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">현재 설정 요약</div>
+        <div style="font-size:11px;color:var(--color-lime);font-weight:800;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">현재 설정 요약</div>
         <div style="font-size:13px;line-height:2.1;">
-          <div>🏟 <span style="color:var(--cc-gray-400);">코트</span> &nbsp;<strong>${courtTxt}</strong></div>
-          <div>📅 <span style="color:var(--cc-gray-400);">요일</span> &nbsp;<strong>${dayTxt}</strong></div>
-          <div>⏰ <span style="color:var(--cc-gray-400);">시간</span> &nbsp;<strong>${timeTxt}</strong></div>
+          <div>🏟 <span style="color:var(--color-ink3);">코트</span> &nbsp;<strong>${courtTxt}</strong></div>
+          <div>📅 <span style="color:var(--color-ink3);">요일</span> &nbsp;<strong>${dayTxt}</strong></div>
+          <div>⏰ <span style="color:var(--color-ink3);">시간</span> &nbsp;<strong>${timeTxt}</strong></div>
         </div>
-        <div style="margin-top:10px;font-size:11px;color:var(--cc-gray-600);">위 조건에 해당하는 취소 자리가 생기면 알림을 보내드려요</div>
+        <div style="margin-top:10px;font-size:11px;color:var(--color-ink4);">오늘 이후 날짜에 취소 자리가 생기면 즉시 알림을 드려요</div>
       </div>`;
+  },
+
+  _renderCourtList() {
+    const listEl  = document.getElementById('courtAlertList');
+    const countEl = document.getElementById('courtAlertSelCount');
+    if (!listEl) return;
+    const st       = this._state;
+    const filtered = this._getFiltered();
+    listEl.innerHTML = filtered.length === 0
+      ? `<div style="text-align:center;padding:40px 0;color:var(--color-ink3);font-size:14px;">검색 결과가 없어요</div>`
+      : filtered.map(c => {
+          const sel = st.selectedIds.includes(c.svc_id);
+          return `<button onclick="CourtAlert.toggleCourt('${c.svc_id}')" style="display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:12px;border:1.5px solid ${sel ? 'var(--color-lime)' : 'var(--color-border)'};background:${sel ? 'rgba(200,255,0,0.04)' : 'var(--color-card)'};cursor:pointer;text-align:left;width:100%;">
+            <div style="width:20px;height:20px;border-radius:50%;border:2px solid ${sel ? 'var(--color-lime)' : 'var(--color-border)'};background:${sel ? 'var(--color-lime)' : 'transparent'};flex-shrink:0;display:flex;align-items:center;justify-content:center;">
+              ${sel ? `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#0A1628" stroke-width="3.5"><polyline points="20 6 9 17 4 12"/></svg>` : ''}
+            </div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:13px;font-weight:700;color:var(--color-ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${c.court_name}</div>
+              <div style="font-size:11px;color:var(--color-ink3);margin-top:1px;">${c.area}</div>
+            </div>
+          </button>`;
+        }).join('');
+    if (countEl) {
+      countEl.innerHTML = st.selectedIds.length
+        ? `<div style="font-size:12px;color:var(--color-lime);font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:8px;">
+             ✓ ${st.selectedIds.length}개 코트 선택됨
+             <button onclick="CourtAlert.clearSel()" style="color:var(--color-ink3);font-size:11px;background:none;border:none;cursor:pointer;">전체 해제</button>
+           </div>`
+        : '';
+    }
   },
 
   _esc(str) {
     return (str || '').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   },
 
-  toggleAlert() { this._state.alertOn = !this._state.alertOn; this._renderContent(); },
+  toggleAlert() {
+    this._state.alertOn = !this._state.alertOn;
+    if (this._state.alertOn && Store.get('seoul_api_key')) {
+      this._startPolling();
+    } else {
+      this._stopPolling();
+    }
+    this._renderContent();
+  },
 
   toggleArea(area) {
     const arr = this._state.areaFilter;
@@ -1832,20 +2019,15 @@ const CourtAlert = {
     this._renderContent();
   },
 
-  setSearch(val) {
-    this._state.search = val;
-    this._renderContent();
-    const inp = document.getElementById('courtAlertSearch');
-    if (inp) { inp.focus(); inp.setSelectionRange(val.length, val.length); }
-  },
+  setSearch(val) { this._state.search = val; this._renderCourtList(); },
 
   toggleCourt(id) {
     const arr = this._state.selectedIds;
     this._state.selectedIds = arr.includes(id) ? arr.filter(s => s !== id) : [...arr, id];
-    this._renderContent();
+    this._renderCourtList();
   },
 
-  clearSel() { this._state.selectedIds = []; this._renderContent(); },
+  clearSel() { this._state.selectedIds = []; this._renderCourtList(); },
 
   toggleDay(day) {
     const arr = this._state.days;
@@ -1872,6 +2054,10 @@ const CourtAlert = {
     await this._fetchCourts();
     this._state.loading = false;
     this._renderContent();
+  },
+
+  async requestNotifPermission() {
+    await this._requestNotifPermission();
   },
 
   showApiKeyInput() {

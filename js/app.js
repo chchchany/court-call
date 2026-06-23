@@ -574,7 +574,7 @@ const TemperatureUtils = {
     const width = this.getWidth(temp);
     return `
       <div class="temperature-row">
-        <div style="font-size:12px;color:var(--cc-gray-400);width:60px;flex-shrink:0;">${label}</div>
+        <div style="font-size:12px;color:var(--color-ink3);width:60px;flex-shrink:0;">${label}</div>
         <div class="temperature-bar-track" style="flex:1;">
           <div class="temperature-bar-fill" style="width:${width}%;background:${color};"></div>
         </div>
