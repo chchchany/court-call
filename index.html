@@ -6,6 +6,7 @@
   <title>코트콜 — 번개 테니스 예약 플랫폼</title>
   <meta name="description" content="카카오톡 오픈채팅 번개 테니스 경기를 1분 만에 개설하고, 참가 신청 · N빵 계산 · 카카오페이 결제까지 자동으로!">
   <link rel="stylesheet" href="css/style.css">
+  <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
 
   <style>
@@ -119,9 +120,11 @@
 
       <!-- CTA -->
       <div class="splash-cta">
-        <button class="splash-btn-main" data-page="signup">무료로 시작하기 →</button>
-        <button class="splash-btn-ghost" data-page="login">이미 계정이 있어요</button>
-        <button class="splash-btn-demo" id="demoBtn" onclick="Demo.quickLogin()">🎾 데모로 체험하기 (로그인 없이)</button>
+        <button onclick="KakaoAuth.login()" style="width:100%;padding:16px;border-radius:16px;border:none;background:#FFE812;color:#3A1D00;font-size:16px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:10px;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="#3A1D00"><path d="M12 3C6.477 3 2 6.477 2 10.88c0 2.667 1.62 5.014 4.08 6.432-.15.56-.538 2.03-.617 2.345-.097.39.142.384.3.28.124-.083 1.966-1.336 2.763-1.878.467.065.944.1 1.474.1 5.523 0 10-3.477 10-7.88S17.523 3 12 3z"/></svg>
+          카카오로 시작하기
+        </button>
+        <button class="splash-btn-ghost" data-page="login">이메일로 로그인</button>
       </div>
 
       <!-- 약관 -->
@@ -150,27 +153,30 @@
       </div>
 
       <div class="auth-content" style="flex:1;">
-        <!-- 카카오 로그인 -->
-        <button class="btn btn-kakao btn-full btn-lg" id="kakaoLoginBtn" style="margin-bottom:var(--space-md);" onclick="Demo.kakaoLogin()">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="#3A1D00"><path d="M12 3C6.477 3 2 6.477 2 10.88c0 2.667 1.62 5.014 4.08 6.432-.15.56-.538 2.03-.617 2.345-.097.39.142.384.3.28.124-.083 1.966-1.336 2.763-1.878.467.065.944.1 1.474.1 5.523 0 10-3.477 10-7.88S17.523 3 12 3z"/></svg>
-          카카오로 로그인
-        </button>
-
-        <div class="auth-divider">또는</div>
-
-        <!-- 폰 번호 로그인 -->
         <div class="form-group">
           <label class="form-label">휴대폰 번호</label>
           <input type="tel" id="loginPhone" class="form-input" placeholder="010-0000-0000" maxlength="13"
-            oninput="this.value=this.value.replace(/[^0-9]/g,'').replace(/(\d{3})(\d{4})(\d{4})/,'$1-$2-$3')">
+            oninput="this.value=this.value.replace(/[^0-9]/g,'').replace(/(\d{3})(\d{4})(\d{4})/,'$1-$2-$3')"
+            onkeydown="if(event.key==='Enter') document.getElementById('loginPw').focus()">
         </div>
         <div class="form-group">
           <label class="form-label">비밀번호</label>
-          <input type="password" id="loginPw" class="form-input" placeholder="비밀번호 입력">
+          <input type="password" id="loginPw" class="form-input" placeholder="비밀번호 입력"
+            onkeydown="if(event.key==='Enter') SimpleAuth.login()">
+        </div>
+        <button class="btn btn-green btn-full" style="margin-top:8px;" onclick="SimpleAuth.login()">
+          로그인
+        </button>
+
+        <div style="display:flex;align-items:center;gap:10px;margin:20px 0;">
+          <div style="flex:1;height:1px;background:var(--color-border);"></div>
+          <span style="font-size:12px;color:var(--color-ink3);">또는</span>
+          <div style="flex:1;height:1px;background:var(--color-border);"></div>
         </div>
 
-        <button class="btn btn-green btn-full" style="margin-top:8px;" onclick="Demo.phoneLogin()">
-          로그인
+        <button onclick="KakaoAuth.login()" style="width:100%;padding:14px;border-radius:12px;border:none;background:#FFE812;color:#3A1D00;font-size:15px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="#3A1D00"><path d="M12 3C6.477 3 2 6.477 2 10.88c0 2.667 1.62 5.014 4.08 6.432-.15.56-.538 2.03-.617 2.345-.097.39.142.384.3.28.124-.083 1.966-1.336 2.763-1.878.467.065.944.1 1.474.1 5.523 0 10-3.477 10-7.88S17.523 3 12 3z"/></svg>
+          카카오로 로그인
         </button>
 
         <div style="text-align:center;margin-top:var(--space-md);font-size:14px;color:var(--color-ink3);">
@@ -195,39 +201,36 @@
       </div>
 
       <div class="auth-content" style="flex:1;">
-        <!-- 카카오 가입 -->
-        <button class="btn btn-kakao btn-full" style="margin-bottom:var(--space-md);" onclick="Demo.kakaoLogin()">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="#3A1D00"><path d="M12 3C6.477 3 2 6.477 2 10.88c0 2.667 1.62 5.014 4.08 6.432-.15.56-.538 2.03-.617 2.345-.097.39.142.384.3.28.124-.083 1.966-1.336 2.763-1.878.467.065.944.1 1.474.1 5.523 0 10-3.477 10-7.88S17.523 3 12 3z"/></svg>
-          카카오로 간편 가입
-        </button>
-
-        <div class="auth-divider">또는</div>
-
         <div class="form-group">
-          <label class="form-label">닉네임</label>
-          <input type="text" id="signupName" class="form-input" placeholder="테니스인" maxlength="10">
+          <label class="form-label">닉네임 <span style="color:var(--color-danger-fg);">*</span></label>
+          <input type="text" id="signupName" class="form-input" placeholder="테니스인" maxlength="10"
+            onkeydown="if(event.key==='Enter') document.getElementById('signupPhone').focus()">
         </div>
         <div class="form-group">
-          <label class="form-label">휴대폰 번호</label>
+          <label class="form-label">휴대폰 번호 <span style="color:var(--color-danger-fg);">*</span></label>
           <input type="tel" id="signupPhone" class="form-input" placeholder="010-0000-0000" maxlength="13"
-            oninput="this.value=this.value.replace(/[^0-9]/g,'').replace(/(\d{3})(\d{4})(\d{4})/,'$1-$2-$3')">
+            oninput="this.value=this.value.replace(/[^0-9]/g,'').replace(/(\d{3})(\d{4})(\d{4})/,'$1-$2-$3')"
+            onkeydown="if(event.key==='Enter') document.getElementById('signupPw').focus()">
         </div>
         <div class="form-group">
-          <label class="form-label">비밀번호</label>
-          <input type="password" id="signupPw" class="form-input" placeholder="8자 이상">
+          <label class="form-label">비밀번호 <span style="color:var(--color-danger-fg);">*</span></label>
+          <input type="password" id="signupPw" class="form-input" placeholder="4자 이상"
+            onkeydown="if(event.key==='Enter') SimpleAuth.signup()">
         </div>
         <div class="form-group">
-          <label class="form-label">실력 수준</label>
+          <label class="form-label">NTRP 레벨</label>
           <select id="signupLevel" class="form-input">
-            <option value="초급">초급 (입문 ~ 6개월)</option>
-            <option value="초중급">초중급29 (6개월 ~ 1년)</option>
-            <option value="중급" selected>중급 (1~3년)</option>
-            <option value="중상급">중상급 (3~5년)</option>
-            <option value="상급">상급 (5년 이상)</option>
+            <option value="NTRP 1.0">1.0 — 완전 입문</option>
+            <option value="NTRP 1.5">1.5 — 기초 연습 중</option>
+            <option value="NTRP 2.0">2.0 — 랠리 시작</option>
+            <option value="NTRP 2.5">2.5 — 기본기 형성</option>
+            <option value="NTRP 3.0" selected>3.0 — 경기 진행 가능</option>
+            <option value="NTRP 3.5">3.5 — 안정적 스트로크</option>
+            <option value="NTRP 4.0">4.0 — 전술 활용</option>
+            <option value="NTRP 4.5+">4.5+ — 고급</option>
           </select>
         </div>
-
-        <button class="btn btn-primary btn-full btn-lg" onclick="Demo.signup()">
+        <button class="btn btn-primary btn-full btn-lg" onclick="SimpleAuth.signup()">
           가입하고 시작하기 →
         </button>
       </div>
@@ -352,13 +355,16 @@
               </select>
             </div>
             <div class="form-group">
-              <label class="form-label">실력 수준</label>
+              <label class="form-label">모집 NTRP <span id="hostNtrpBadge" style="font-size:11px;color:var(--color-lime);font-weight:700;margin-left:4px;"></span></label>
               <select id="level" class="form-input">
-                <option value="초급">초급</option>
-                <option value="초중급">초중급</option>
-                <option value="중급" selected>중급</option>
-                <option value="중상급">중상급</option>
-                <option value="상급">상급</option>
+                <option value="NTRP 1.0">1.0 — 완전 입문</option>
+                <option value="NTRP 1.5">1.5 — 기초 연습 중</option>
+                <option value="NTRP 2.0">2.0 — 랠리 시작</option>
+                <option value="NTRP 2.5">2.5 — 기본기 형성</option>
+                <option value="NTRP 3.0" selected>3.0 — 경기 진행 가능</option>
+                <option value="NTRP 3.5">3.5 — 안정적 스트로크</option>
+                <option value="NTRP 4.0">4.0 — 전술 활용</option>
+                <option value="NTRP 4.5+">4.5+ — 고급</option>
               </select>
             </div>
           </div>
@@ -713,81 +719,66 @@
 <script src="js/app.js"></script>
 <script src="js/pages.js"></script>
 <script>
-// ── 데모 헬퍼 ────────────────────────────────
-const Demo = {
-  quickLogin() {
-    const demoUser = {
-      id: `user_${Date.now()}`,
-      name: '차니',
-      phone: '010-1234-5678',
-      level: '중급',
-      trustScore: 100,
-      matchCount: 0,
-      noShowCount: 0,
-      createdAt: new Date().toISOString()
-    };
-    Auth.login(demoUser);
-    Matches.seedDemoData();
-    Communities.seedDemoData(demoUser.id, demoUser.name);
-    App.addNotification({
-      type: 'created',
-      title: '👋 코트콜에 오신 걸 환영해요!',
-      body: '번개 테니스 경기를 1분 만에 개설하고 관리해보세요 🎾',
+// ── 카카오 로그인 ─────────────────────────────
+const KAKAO_JS_KEY = 'f75cece1074b1cf66a4b2cbec945a08c';
+if (window.Kakao && !Kakao.isInitialized()) Kakao.init(KAKAO_JS_KEY);
+
+const KakaoAuth = {
+  login() {
+    if (!window.Kakao) { App.showToast('카카오 SDK 로드 실패', 'error'); return; }
+    if (!Kakao.isInitialized()) Kakao.init(KAKAO_JS_KEY);
+    Kakao.Auth.login({
+      success: () => {
+        Kakao.API.request({
+          url: '/v2/user/me',
+          success: (res) => {
+            const profile = res.kakao_account?.profile || {};
+            const kakaoId = 'kakao_' + res.id;
+            const users   = Store.get('users') || [];
+            let user = users.find(u => u.kakaoId === String(res.id));
+            if (!user) {
+              user = {
+                id:       kakaoId,
+                kakaoId:  String(res.id),
+                name:     profile.nickname || '카카오 사용자',
+                avatar:   profile.profile_image_url || '',
+                phone:    '',
+                password: '',
+                level:    'NTRP 3.0',
+                joinedAt: new Date().toISOString(),
+              };
+              users.push(user);
+              Store.set('users', users);
+            }
+            Auth.login(user);
+            App.navigate('home');
+            App.showToast(`${user.name}님, 환영해요! 🎾`, 'success');
+          },
+          fail: () => App.showToast('프로필 조회 실패', 'error'),
+        });
+      },
+      fail: (err) => {
+        console.error('Kakao login fail', err);
+        App.showToast('카카오 로그인에 실패했어요', 'error');
+      },
     });
-    App.navigate('home');
-    App.showToast('데모 모드로 시작했어요! 🎾', 'success');
   },
+};
 
-  kakaoLogin() {
-    // 카카오 OAuth 모킹
-    const kakaoUser = {
-      id: `user_kakao_${Date.now()}`,
-      name: '카카오유저',
-      phone: '010-9999-8888',
-      level: '중급',
-      trustScore: 100,
-      matchCount: 0,
-      noShowCount: 0,
-      createdAt: new Date().toISOString(),
-      loginType: 'kakao'
-    };
-    Auth.login(kakaoUser);
-    Matches.seedDemoData();
-    Communities.seedDemoData(kakaoUser.id, kakaoUser.name);
-    App.navigate('home');
-    App.showToast('카카오로 로그인됐어요! 🎾', 'success');
-  },
-
-  phoneLogin() {
+// ── 간단 인증 (인증번호 없음) ─────────────────
+const SimpleAuth = {
+  login() {
     const phone = document.getElementById('loginPhone')?.value;
     const pw    = document.getElementById('loginPw')?.value;
-
-    if (!phone || !pw) {
-      App.showToast('전화번호와 비밀번호를 입력해주세요', 'error');
-      return;
-    }
-
+    if (!phone || !pw) { App.showToast('번호와 비밀번호를 입력해주세요', 'error'); return; }
     const users = Store.get('users') || [];
-    const user = users.find(u => u.phone === phone.replace(/-/g,'') || u.phone === phone);
+    const user  = users.find(u => u.phone === phone.replace(/-/g,'') || u.phone === phone);
     if (!user || user.password !== pw) {
-      // 데모: 없으면 새로 만들기
-      const newUser = {
-        id: `user_${Date.now()}`,
-        name: phone.slice(-4) + '님',
-        phone,
-        level: '중급',
-        trustScore: 100,
-        matchCount: 0,
-        noShowCount: 0,
-        createdAt: new Date().toISOString()
-      };
-      Auth.login(newUser);
-    } else {
-      Auth.login(user);
+      App.showToast('번호 또는 비밀번호가 맞지 않아요', 'error'); return;
     }
-    Matches.seedDemoData();
+    Auth.login(user);
     App.navigate('home');
-    App.showToast('로그인됐어요! 🎾', 'success');
+    App.showToast(`${user.name}님, 돌아오셨어요! 🎾`, 'success');
   },
 
   signup() {
@@ -795,24 +786,12 @@ const Demo = {
     const phone = document.getElementById('signupPhone')?.value;
     const pw    = document.getElementById('signupPw')?.value;
     const level = document.getElementById('signupLevel')?.value;
-
-    if (!name || !phone) {
-      App.showToast('닉네임과 전화번호를 입력해주세요', 'error');
-      return;
-    }
-
+    if (!name || !phone) { App.showToast('닉네임과 번호를 입력해주세요', 'error'); return; }
+    if (!pw || pw.length < 4) { App.showToast('비밀번호 4자 이상 입력해주세요', 'error'); return; }
     const user = Auth.register({ name, phone, password: pw, level });
-    if (!user) {
-      App.showToast('이미 가입된 번호예요', 'error');
-      return;
-    }
+    if (!user) { App.showToast('이미 가입된 번호예요', 'error'); return; }
     Auth.login(user);
-    Matches.seedDemoData();
-    App.addNotification({
-      type: 'created',
-      title: `🎾 ${name}님, 환영해요!`,
-      body: '코트콜로 번개 테니스를 더 쉽게 즐겨보세요!',
-    });
+    App.addNotification({ type: 'welcome', title: `🎾 ${name}님, 환영해요!`, body: '코트콜로 번개 테니스를 더 쉽게 즐겨보세요!' });
     App.navigate('home');
     App.showToast(`${name}님, 코트콜에 오신 걸 환영해요! 🎾`, 'success');
   }
@@ -820,7 +799,6 @@ const Demo = {
 
 // ── 앱 시작 ──────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-  // 알림 배지 동기화
   const updateBothBadges = () => {
     const count = App.getUnreadCount();
     const display = count > 0 ? 'block' : 'none';
@@ -830,11 +808,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (b2) b2.style.display = display;
   };
   setInterval(updateBothBadges, 2000);
-
   App.init();
 });
 
-window.Demo = Demo;
+window.SimpleAuth = SimpleAuth;
+window.KakaoAuth = KakaoAuth;
 </script>
 
 </body>

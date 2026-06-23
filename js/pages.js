@@ -439,11 +439,14 @@ const CreateMatch = {
   render() {
     const form = document.getElementById('createMatchForm');
     if (form) {
-      // 오늘 날짜를 기본값으로
       const today = new Date().toISOString().split('T')[0];
       const dateInput = document.getElementById('matchDate');
       if (dateInput && !dateInput.value) dateInput.min = today;
     }
+    // 호스트 NTRP 배지
+    const badge = document.getElementById('hostNtrpBadge');
+    const hostLevel = App.currentUser?.level;
+    if (badge && hostLevel) badge.textContent = `(내 NTRP: ${hostLevel.replace('NTRP ', '')})`;
     this.updateCalculator();
   },
 
@@ -502,7 +505,7 @@ const CreateMatch = {
       title: title || `${venue} 번개 테니스 🎾`,
       venue, address, date, time, duration,
       maxPlayers, totalCost, perPersonCost,
-      level: level || '중급',
+      level: level || user.level || 'NTRP 3.0',
       note
     };
 
@@ -1532,18 +1535,18 @@ const AccountSettings = {
 const CourtAlert = {
   _state: {
     alertOn: true,
-    courts: [],      // 장소(venue) 기준 중복 제거된 코트 목록
-    allSlots: [],    // API에서 받은 전체 슬롯 (폴링용)
+    rules: [],        // [{ id, enabled, selectedIds, days, timeStart, timeEnd }]
+    courts: [],
+    allSlots: [],
     loading: false,
     error: null,
-    search: '',
-    areaFilter: [],
-    selectedIds: [], // place_name 기준으로 선택
-    days: [],
-    timeStart: '07:00',
-    timeEnd: '22:00',
-    lastStatuses: {}, // svcId → 마지막 상태 (변경 감지용)
+    form: null,       // null=리스트뷰, {...}=규칙 편집/생성
+    formSearch: '',
+    formAreaFilter: [],
+    lastStatuses: {},
     pollTimer: null,
+    retryTimer: null,
+    retryCount: 0,
     lastFetched: null,
   },
 
@@ -1579,13 +1582,16 @@ const CourtAlert = {
 
   async render() {
     this._loadSettings();
+    // 즉시 데모 데이터로 화면 표시
     if (!this._state.courts.length) {
-      this._state.loading = true;
-      this._renderContent();
-      await this._fetchCourts();
-      this._state.loading = false;
+      this._state.courts = this.DEMO_COURTS;
+      this._state.error  = 'demo';
     }
     this._renderContent();
+    // 백그라운드에서 실제 API 호출
+    if (Store.get('seoul_api_key')) {
+      this._fetchCourts().then(() => this._renderContent());
+    }
     // 알림 ON + API 키 있으면 폴링 시작
     if (this._state.alertOn && Store.get('seoul_api_key')) {
       this._startPolling();
@@ -1595,37 +1601,78 @@ const CourtAlert = {
   _loadSettings() {
     const s  = Store.get('court_alert') || {};
     const st = this._state;
-    st.alertOn     = s.alertOn     ?? true;
-    st.selectedIds = s.selectedIds ?? [];
-    st.days        = s.days        ?? [];
-    st.timeStart   = s.timeStart   ?? '07:00';
-    st.timeEnd     = s.timeEnd     ?? '22:00';
-    // 이전 상태 복원 (변경 감지 연속성)
+    st.alertOn = s.alertOn ?? true;
+    // 구형 단일 규칙 → 새 rules 배열로 마이그레이션
+    if (s.rules) {
+      st.rules = s.rules;
+    } else if (s.selectedIds || s.days) {
+      st.rules = [{
+        id: 'rule_default',
+        enabled: true,
+        selectedIds: s.selectedIds ?? [],
+        days:        s.days        ?? [],
+        timeStart:   s.timeStart   ?? '07:00',
+        timeEnd:     s.timeEnd     ?? '22:00',
+      }];
+    }
     const saved = Store.get('court_alert_statuses') || {};
     if (Object.keys(saved).length) st.lastStatuses = saved;
   },
 
-  saveSettings() {
+  _saveRules() {
     const st = this._state;
-    Store.set('court_alert', {
-      alertOn:     st.alertOn,
-      selectedIds: st.selectedIds,
-      days:        st.days,
-      timeStart:   st.timeStart,
-      timeEnd:     st.timeEnd,
-    });
+    Store.set('court_alert', { alertOn: st.alertOn, rules: st.rules });
     if (st.alertOn && Store.get('seoul_api_key')) {
       this._startPolling();
       this._requestNotifPermission();
     } else {
       this._stopPolling();
     }
-    App.addNotification({
-      type: 'info',
-      title: '🔔 코트 취소 알림 설정 완료',
-      body: '조건에 맞는 취소 자리가 생기면 알림을 드릴게요!',
-    });
-    App.showToast('알림 설정이 저장됐어요! 취소 자리가 나면 알려드릴게요 🎾', 'success');
+  },
+
+  openForm(ruleId = null) {
+    const existing = ruleId ? this._state.rules.find(r => r.id === ruleId) : null;
+    this._state.form = existing
+      ? { ...existing }
+      : { id: null, enabled: true, selectedIds: [], days: [], timeStart: '07:00', timeEnd: '22:00' };
+    this._state.formSearch = '';
+    this._state.formAreaFilter = [];
+    this._renderContent();
+  },
+
+  closeForm() {
+    this._state.form = null;
+    this._renderContent();
+  },
+
+  saveForm() {
+    const st = this._state;
+    const f  = st.form;
+    if (!f) return;
+    if (!f.id) {
+      f.id = `rule_${Date.now()}`;
+      st.rules.push({ ...f });
+    } else {
+      const idx = st.rules.findIndex(r => r.id === f.id);
+      if (idx !== -1) st.rules[idx] = { ...f };
+    }
+    st.form = null;
+    this._saveRules();
+    App.showToast('알림 규칙이 저장됐어요 🎾', 'success');
+    this._renderContent();
+  },
+
+  deleteRule(id) {
+    this._state.rules = this._state.rules.filter(r => r.id !== id);
+    this._saveRules();
+    this._renderContent();
+  },
+
+  toggleRule(id) {
+    const rule = this._state.rules.find(r => r.id === id);
+    if (rule) rule.enabled = !rule.enabled;
+    this._saveRules();
+    this._renderContent();
   },
 
   async _requestNotifPermission() {
@@ -1646,13 +1693,26 @@ const CourtAlert = {
     }
     try {
       const seoulUrl = `http://openapi.seoul.go.kr:8088/${apiKey}/json/ListPublicReservationSport/1/1000/테니스`;
-      const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(seoulUrl)}`;
-      const ctrl = new AbortController();
-      const tid  = setTimeout(() => ctrl.abort(), 12000);
-      const res  = await fetch(proxyUrl, { signal: ctrl.signal });
-      clearTimeout(tid);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
+      const proxies = [
+        `https://api.allorigins.win/raw?url=${encodeURIComponent(seoulUrl)}`,
+        `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(seoulUrl)}`,
+      ];
+      let data = null;
+      let lastErr = null;
+      for (const proxyUrl of proxies) {
+        try {
+          const ctrl = new AbortController();
+          const tid  = setTimeout(() => ctrl.abort(), 5000);
+          const res  = await fetch(proxyUrl, { signal: ctrl.signal });
+          clearTimeout(tid);
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          data = await res.json();
+          break;
+        } catch (e) {
+          lastErr = e;
+        }
+      }
+      if (!data) throw lastErr ?? new Error('모든 프록시 실패');
       const rows = data?.ListPublicReservationSport?.row ?? [];
       if (!rows.length) throw new Error('빈 응답');
 
@@ -1690,13 +1750,36 @@ const CourtAlert = {
         }
       });
 
+      // 서울시 API에 없는 외부 시설(YCS 등) 항상 추가
+      this.DEMO_COURTS.forEach(dc => {
+        if (!dc.svc_url.includes('yeyak.seoul.go.kr') && !seen.has(dc.place_name)) {
+          seen.add(dc.place_name);
+          this._state.courts.push(dc);
+        }
+      });
+
       this._state.error       = null;
       this._state.lastFetched = new Date();
+      this._state.retryCount  = 0;
+      if (this._state.retryTimer) { clearTimeout(this._state.retryTimer); this._state.retryTimer = null; }
     } catch {
       this._state.courts   = this.DEMO_COURTS;
       this._state.allSlots = [];
       this._state.error    = 'api_error';
+      this._scheduleRetry();
     }
+  },
+
+  _scheduleRetry() {
+    if (this._state.retryTimer) return; // 이미 예약됨
+    const delays = [30000, 60000, 120000, 300000]; // 30s → 1m → 2m → 5m
+    const delay  = delays[Math.min(this._state.retryCount, delays.length - 1)];
+    this._state.retryCount++;
+    this._state.retryTimer = setTimeout(async () => {
+      this._state.retryTimer = null;
+      await this._fetchCourts();
+      this._renderContent();
+    }, delay);
   },
 
   // ── 5분 폴링 ──────────────────────────────────
@@ -1720,18 +1803,29 @@ const CourtAlert = {
 
     try {
       const seoulUrl = `http://openapi.seoul.go.kr:8088/${apiKey}/json/ListPublicReservationSport/1/1000/테니스`;
-      const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(seoulUrl)}`;
-      const ctrl = new AbortController();
-      const tid  = setTimeout(() => ctrl.abort(), 12000);
-      const res  = await fetch(proxyUrl, { signal: ctrl.signal });
-      clearTimeout(tid);
-      if (!res.ok) return;
-      const data = await res.json();
+      const proxies = [
+        `https://api.allorigins.win/raw?url=${encodeURIComponent(seoulUrl)}`,
+        `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(seoulUrl)}`,
+      ];
+      let data = null;
+      for (const proxyUrl of proxies) {
+        try {
+          const ctrl = new AbortController();
+          const tid  = setTimeout(() => ctrl.abort(), 5000);
+          const res  = await fetch(proxyUrl, { signal: ctrl.signal });
+          clearTimeout(tid);
+          if (!res.ok) continue;
+          data = await res.json();
+          break;
+        } catch { /* 다음 프록시 시도 */ }
+      }
+      if (!data) return;
       const rows = data?.ListPublicReservationSport?.row ?? [];
 
       const today = new Date();
       today.setHours(0, 0, 0, 0);
 
+      const enabledRules = st.rules.filter(r => r.enabled);
       const newAlerts = [];
 
       rows.forEach(r => {
@@ -1739,27 +1833,21 @@ const CourtAlert = {
         const newStatus = r.REVSTATUS;
         const oldStatus = st.lastStatuses[svcId];
 
-        // 이전에 마감/불가였다가 이제 접수중으로 바뀐 슬롯 → 취소 자리
         if (oldStatus !== undefined && oldStatus !== '접수중' && newStatus === '접수중') {
           const slotDate = r.SVCOPNBGNDT ? new Date(r.SVCOPNBGNDT) : null;
+          if (slotDate && slotDate < today) { st.lastStatuses[svcId] = newStatus; return; }
 
-          // 오늘 이전 날짜는 무시
-          if (slotDate && slotDate < today) {
-            st.lastStatuses[svcId] = newStatus;
-            return;
-          }
+          const hour = slotDate ? `${String(slotDate.getHours()).padStart(2,'0')}:00` : null;
 
-          // 요일 필터
-          const dayOk = !st.days.length || (slotDate && st.days.includes(slotDate.getDay()));
+          // 활성화된 규칙 중 하나라도 매칭되면 알림
+          const matched = enabledRules.some(rule => {
+            const courtOk = !rule.selectedIds.length || rule.selectedIds.includes(r.PLACENM);
+            const dayOk   = !rule.days.length || (slotDate && rule.days.includes(slotDate.getDay()));
+            const timeOk  = !hour || (hour >= rule.timeStart && hour <= rule.timeEnd);
+            return courtOk && dayOk && timeOk;
+          });
 
-          // 시간 필터
-          const hour   = slotDate ? `${String(slotDate.getHours()).padStart(2,'0')}:00` : null;
-          const timeOk = !hour || (hour >= st.timeStart && hour <= st.timeEnd);
-
-          // 코트 필터 (place_name 기준)
-          const venueOk = !st.selectedIds.length || st.selectedIds.includes(r.PLACENM);
-
-          if (dayOk && timeOk && venueOk) {
+          if (matched) {
             newAlerts.push({ name: r.SVCNM, place: r.PLACENM, area: r.AREANM, date: slotDate, url: r.SVCURL });
           }
         }
@@ -1799,10 +1887,10 @@ const CourtAlert = {
   },
 
   _getFiltered() {
-    const { courts, search, areaFilter } = this._state;
-    const q = search.trim().toLowerCase();
+    const { courts, formSearch, formAreaFilter } = this._state;
+    const q = formSearch.trim().toLowerCase();
     return courts.filter(c => {
-      const okArea   = !areaFilter.length || areaFilter.includes(c.area);
+      const okArea   = !formAreaFilter.length || formAreaFilter.includes(c.area);
       const okSearch = !q || c.court_name.toLowerCase().includes(q) || c.area.includes(q) || (c.place_name||'').toLowerCase().includes(q);
       return okArea && okSearch;
     });
@@ -1813,29 +1901,28 @@ const CourtAlert = {
     if (!el) return;
     const st = this._state;
 
-    const listEl      = document.getElementById('courtAlertList');
-    const savedScroll = listEl ? listEl.scrollTop : 0;
-
     if (st.loading) {
       el.innerHTML = `<div style="padding:16px;">
         <div class="skeleton" style="height:72px;border-radius:14px;margin-bottom:12px;"></div>
         <div class="skeleton" style="height:48px;border-radius:14px;margin-bottom:12px;"></div>
-        <div class="skeleton" style="height:300px;border-radius:14px;margin-bottom:12px;"></div>
-        <div class="skeleton" style="height:80px;border-radius:14px;"></div>
+        <div class="skeleton" style="height:200px;border-radius:14px;"></div>
       </div>`;
       return;
     }
 
+    if (st.form) { this._renderForm(); return; }
+
     const notifGranted = 'Notification' in window && Notification.permission === 'granted';
     const notifDenied  = 'Notification' in window && Notification.permission === 'denied';
+    const activeRules  = st.rules.filter(r => r.enabled).length;
 
-    el.innerHTML = `<div style="padding:0 16px 32px;">
+    el.innerHTML = `<div style="padding:0 16px 100px;">
 
       <!-- 알림 ON/OFF -->
       <div style="display:flex;align-items:center;justify-content:space-between;background:var(--color-card);border:1px solid var(--color-border);border-radius:16px;padding:16px 20px;margin-bottom:12px;">
         <div>
           <div style="font-size:15px;font-weight:700;">취소 알림 받기</div>
-          <div style="font-size:12px;color:var(--color-ink3);margin-top:2px;">서울시 공공 테니스장 취소 자리 실시간 알림</div>
+          <div style="font-size:12px;color:var(--color-ink3);margin-top:2px;">규칙 ${activeRules}개 활성 · 서울시 공공 테니스장</div>
         </div>
         <button onclick="CourtAlert.toggleAlert()" style="padding:8px 20px;border-radius:999px;border:1.5px solid ${st.alertOn ? 'var(--color-lime)' : 'var(--color-border)'};background:${st.alertOn ? 'rgba(200,255,0,0.1)' : 'transparent'};color:${st.alertOn ? 'var(--color-lime)' : 'var(--color-ink3)'};font-weight:800;font-size:14px;cursor:pointer;">
           ${st.alertOn ? 'ON' : 'OFF'}
@@ -1843,14 +1930,9 @@ const CourtAlert = {
       </div>
 
       <!-- 상태 배너 -->
-      ${st.error === 'demo' ? `
-        <div style="display:flex;align-items:center;gap:10px;background:rgba(61,139,255,0.08);border:1px solid rgba(61,139,255,0.2);border-radius:12px;padding:11px 14px;margin-bottom:12px;">
-          <span style="font-size:13px;color:#3D8BFF;flex:1;">ℹ️ 데모 코트 목록 표시 중 — 실시간 알림은 서울시 API 키가 필요해요</span>
-          <button onclick="CourtAlert.showApiKeyInput()" style="font-size:12px;color:var(--color-lime);font-weight:700;background:none;border:none;cursor:pointer;white-space:nowrap;">키 등록 →</button>
-        </div>
-      ` : st.error === 'api_error' ? `
+      ${st.error === 'demo' || st.error === 'api_error' ? `
         <div style="background:rgba(255,71,87,0.08);border:1px solid rgba(255,71,87,0.2);border-radius:12px;padding:11px 14px;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
-          <span style="font-size:13px;color:var(--color-danger-fg);flex:1;">⚠️ API 연결 실패 — 데모 코트 표시 중</span>
+          <span style="font-size:13px;color:var(--color-danger-fg);flex:1;">⚠️ API 연결 실패 — ${st.retryTimer ? '자동 재시도 중...' : '데모 코트 표시 중'}</span>
           <button onclick="CourtAlert.refresh()" style="font-size:12px;color:var(--color-ink3);background:none;border:none;cursor:pointer;">🔄 재시도</button>
         </div>
       ` : `
@@ -1872,49 +1954,102 @@ const CourtAlert = {
         <div style="font-size:12px;color:var(--color-ink3);margin-bottom:16px;">🔔 브라우저 알림 허용됨</div>
       ` : ''}
 
+      <!-- 알림 규칙 목록 -->
+      <div class="section-title" style="margin-bottom:10px;">알림 규칙</div>
+      ${st.rules.length === 0 ? `
+        <div style="text-align:center;padding:40px 0;color:var(--color-ink3);font-size:14px;">
+          아직 알림 규칙이 없어요<br>
+          <span style="font-size:12px;">아래 버튼으로 규칙을 추가해보세요</span>
+        </div>
+      ` : st.rules.map(rule => this._renderRuleCard(rule)).join('')}
+
+      <!-- 규칙 추가 버튼 -->
+      <button onclick="CourtAlert.openForm()" class="btn btn-primary btn-full" style="margin-top:16px;">
+        + 알림 규칙 추가
+      </button>
+    </div>`;
+  },
+
+  _renderRuleCard(rule) {
+    const courts = rule.selectedIds.map(id => this._state.courts.find(c => c.svc_id === id || c.place_name === id)?.court_name || id);
+    const courtTxt = !courts.length ? '전체 코트' : courts.length <= 2 ? courts.join(', ') : `${courts[0]} 외 ${courts.length-1}개`;
+    const dayTxt   = !rule.days.length ? '매일' : rule.days.map(d => this.DAYS[d]).join('·');
+    const timeTxt  = `${rule.timeStart}~${rule.timeEnd}`;
+    return `
+      <div style="background:var(--color-card);border:1.5px solid ${rule.enabled ? 'rgba(200,255,0,0.25)' : 'var(--color-border)'};border-radius:14px;padding:14px 16px;margin-bottom:10px;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+          <div style="flex:1;font-size:13px;font-weight:700;color:${rule.enabled ? 'var(--color-ink)' : 'var(--color-ink3)'};">
+            📍 ${courtTxt}
+          </div>
+          <button onclick="CourtAlert.toggleRule('${rule.id}')" style="padding:4px 12px;border-radius:999px;border:1.5px solid ${rule.enabled ? 'var(--color-lime)' : 'var(--color-border)'};background:${rule.enabled ? 'rgba(200,255,0,0.1)' : 'transparent'};color:${rule.enabled ? 'var(--color-lime)' : 'var(--color-ink3)'};font-weight:700;font-size:11px;cursor:pointer;">
+            ${rule.enabled ? 'ON' : 'OFF'}
+          </button>
+          <button onclick="CourtAlert.openForm('${rule.id}')" style="padding:4px 10px;border-radius:8px;border:1px solid var(--color-border);background:transparent;color:var(--color-ink3);font-size:11px;cursor:pointer;">편집</button>
+          <button onclick="CourtAlert.deleteRule('${rule.id}')" style="padding:4px 8px;border-radius:8px;border:none;background:transparent;color:var(--color-danger-fg);font-size:14px;cursor:pointer;">✕</button>
+        </div>
+        <div style="font-size:12px;color:var(--color-ink3);display:flex;gap:12px;flex-wrap:wrap;">
+          <span>📅 ${dayTxt}</span>
+          <span>⏰ ${timeTxt}</span>
+        </div>
+      </div>`;
+  },
+
+  _renderForm() {
+    const el = document.getElementById('courtAlertContent');
+    if (!el) return;
+    const st = this._state;
+    const f  = st.form;
+    const isNew = !f.id || !st.rules.find(r => r.id === f.id);
+
+    el.innerHTML = `<div style="padding:0 16px 100px;">
+      <!-- 헤더 -->
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+        <button onclick="CourtAlert.closeForm()" style="background:none;border:none;cursor:pointer;padding:4px;color:var(--color-ink3);">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <div style="font-size:17px;font-weight:800;">${isNew ? '알림 규칙 추가' : '알림 규칙 편집'}</div>
+      </div>
+
       <!-- 코트 선택 -->
       <div style="margin-bottom:24px;">
-        <div class="section-title" style="margin-bottom:12px;">📍 알림 받을 코트 <span style="font-size:12px;font-weight:400;color:var(--color-ink3);">(미선택 시 전체)</span></div>
-
+        <div class="section-title" style="margin-bottom:12px;">📍 코트 <span style="font-size:12px;font-weight:400;color:var(--color-ink3);">(미선택 시 전체)</span></div>
         <div style="overflow-x:auto;padding-bottom:8px;margin-bottom:10px;-webkit-overflow-scrolling:touch;">
           <div style="display:flex;gap:6px;width:max-content;">
             ${this.AREAS.map(a => {
-              const on = st.areaFilter.includes(a);
-              return `<button onclick="CourtAlert.toggleArea('${a}')" style="padding:5px 12px;border-radius:999px;border:1.5px solid ${on ? 'var(--color-lime)' : 'var(--color-border)'};background:${on ? 'rgba(200,255,0,0.1)' : 'var(--color-card)'};color:${on ? 'var(--color-lime)' : 'var(--color-ink3)'};font-size:12px;font-weight:600;white-space:nowrap;cursor:pointer;">${a}</button>`;
+              const on = st.formAreaFilter.includes(a);
+              return `<button onclick="CourtAlert.toggleFormArea('${a}')" style="padding:5px 12px;border-radius:999px;border:1.5px solid ${on ? 'var(--color-lime)' : 'var(--color-border)'};background:${on ? 'rgba(200,255,0,0.1)' : 'var(--color-card)'};color:${on ? 'var(--color-lime)' : 'var(--color-ink3)'};font-size:12px;font-weight:600;white-space:nowrap;cursor:pointer;">${a}</button>`;
             }).join('')}
           </div>
         </div>
-
         <div style="position:relative;margin-bottom:10px;">
           <svg style="position:absolute;left:14px;top:50%;transform:translateY(-50%);pointer-events:none;" width="15" height="15" fill="none" stroke="var(--color-ink3)" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input id="courtAlertSearch" type="text" class="form-input" placeholder="테니스장 이름 검색..." value="${this._esc(st.search)}" style="padding-left:40px;">
+          <input id="courtAlertSearch" type="text" class="form-input" placeholder="테니스장 이름 검색..." value="${this._esc(st.formSearch)}" style="padding-left:40px;">
         </div>
-
         <div id="courtAlertSelCount"></div>
-        <div id="courtAlertList" style="display:flex;flex-direction:column;gap:7px;max-height:280px;overflow-y:auto;"></div>
+        <div id="courtAlertList" style="display:flex;flex-direction:column;gap:7px;max-height:240px;overflow-y:auto;"></div>
       </div>
 
       <!-- 요일 선택 -->
       <div style="margin-bottom:24px;">
-        <div class="section-title" style="margin-bottom:12px;">📅 원하는 요일 <span style="font-size:12px;font-weight:400;color:var(--color-ink3);">(미선택 시 매일)</span></div>
+        <div class="section-title" style="margin-bottom:12px;">📅 요일 <span style="font-size:12px;font-weight:400;color:var(--color-ink3);">(미선택 시 매일)</span></div>
         <div style="display:flex;gap:8px;">
           ${this.DAYS.map((d, i) => {
-            const on = st.days.includes(i);
-            return `<button onclick="CourtAlert.toggleDay(${i})" style="width:40px;height:40px;border-radius:50%;border:1.5px solid ${on ? 'var(--color-lime)' : 'var(--color-border)'};background:${on ? 'rgba(200,255,0,0.1)' : 'var(--color-card)'};color:${on ? 'var(--color-lime)' : 'var(--color-ink3)'};font-size:13px;font-weight:700;cursor:pointer;">${d}</button>`;
+            const on = f.days.includes(i);
+            return `<button onclick="CourtAlert.toggleFormDay(${i})" style="width:40px;height:40px;border-radius:50%;border:1.5px solid ${on ? 'var(--color-lime)' : 'var(--color-border)'};background:${on ? 'rgba(200,255,0,0.1)' : 'var(--color-card)'};color:${on ? 'var(--color-lime)' : 'var(--color-ink3)'};font-size:13px;font-weight:700;cursor:pointer;">${d}</button>`;
           }).join('')}
         </div>
       </div>
 
       <!-- 시간 선택 -->
       <div style="margin-bottom:24px;">
-        <div class="section-title" style="margin-bottom:12px;">⏰ 원하는 시간대</div>
+        <div class="section-title" style="margin-bottom:12px;">⏰ 시간대</div>
         <div style="margin-bottom:12px;">
           <div style="font-size:12px;color:var(--color-ink3);font-weight:600;margin-bottom:8px;">시작</div>
           <div style="overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch;">
             <div style="display:flex;gap:6px;width:max-content;">
-              ${this.TIME_OPTIONS.filter(t => t <= st.timeEnd).map(t => {
-                const on = st.timeStart === t;
-                return `<button onclick="CourtAlert.setTimeStart('${t}')" style="padding:6px 14px;border-radius:999px;border:1.5px solid ${on ? 'var(--color-lime)' : 'var(--color-border)'};background:${on ? 'rgba(200,255,0,0.1)' : 'var(--color-card)'};color:${on ? 'var(--color-lime)' : 'var(--color-ink3)'};font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">${t}</button>`;
+              ${this.TIME_OPTIONS.filter(t => t <= f.timeEnd).map(t => {
+                const on = f.timeStart === t;
+                return `<button onclick="CourtAlert.setFormTimeStart('${t}')" style="padding:6px 14px;border-radius:999px;border:1.5px solid ${on ? 'var(--color-lime)' : 'var(--color-border)'};background:${on ? 'rgba(200,255,0,0.1)' : 'var(--color-card)'};color:${on ? 'var(--color-lime)' : 'var(--color-ink3)'};font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">${t}</button>`;
               }).join('')}
             </div>
           </div>
@@ -1923,50 +2058,31 @@ const CourtAlert = {
           <div style="font-size:12px;color:var(--color-ink3);font-weight:600;margin-bottom:8px;">종료</div>
           <div style="overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch;">
             <div style="display:flex;gap:6px;width:max-content;">
-              ${this.TIME_OPTIONS.filter(t => t >= st.timeStart).map(t => {
-                const on = st.timeEnd === t;
-                return `<button onclick="CourtAlert.setTimeEnd('${t}')" style="padding:6px 14px;border-radius:999px;border:1.5px solid ${on ? 'var(--color-lime)' : 'var(--color-border)'};background:${on ? 'rgba(200,255,0,0.1)' : 'var(--color-card)'};color:${on ? 'var(--color-lime)' : 'var(--color-ink3)'};font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">${t}</button>`;
+              ${this.TIME_OPTIONS.filter(t => t >= f.timeStart).map(t => {
+                const on = f.timeEnd === t;
+                return `<button onclick="CourtAlert.setFormTimeEnd('${t}')" style="padding:6px 14px;border-radius:999px;border:1.5px solid ${on ? 'var(--color-lime)' : 'var(--color-border)'};background:${on ? 'rgba(200,255,0,0.1)' : 'var(--color-card)'};color:${on ? 'var(--color-lime)' : 'var(--color-ink3)'};font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">${t}</button>`;
               }).join('')}
             </div>
           </div>
         </div>
       </div>
 
-      ${this._renderSummary()}
-
-      <button onclick="CourtAlert.saveSettings()" class="btn btn-primary btn-full btn-lg" style="margin-top:4px;">
-        🔔 알림 설정 저장
+      <!-- 저장 -->
+      <button onclick="CourtAlert.saveForm()" class="btn btn-primary btn-full btn-lg">
+        🔔 규칙 저장
+      </button>
+      <button onclick="CourtAlert.closeForm()" class="btn btn-full" style="margin-top:8px;background:transparent;border:1px solid var(--color-border);color:var(--color-ink3);">
+        취소
       </button>
     </div>`;
 
     this._renderCourtList();
 
-    const newListEl = document.getElementById('courtAlertList');
-    if (newListEl && savedScroll) newListEl.scrollTop = savedScroll;
-
     const searchEl = document.getElementById('courtAlertSearch');
     if (searchEl) {
-      searchEl.addEventListener('input', e => { if (!e.isComposing) CourtAlert.setSearch(e.target.value); });
-      searchEl.addEventListener('compositionend', e => CourtAlert.setSearch(e.target.value));
+      searchEl.addEventListener('input', e => { if (!e.isComposing) CourtAlert.setFormSearch(e.target.value); });
+      searchEl.addEventListener('compositionend', e => CourtAlert.setFormSearch(e.target.value));
     }
-  },
-
-  _renderSummary() {
-    const st  = this._state;
-    const sel = st.selectedIds.map(id => (st.courts.find(c => c.svc_id === id)?.court_name || id));
-    const courtTxt = !sel.length    ? '전체 코트' : sel.length <= 2 ? sel.join(', ') : `${sel[0]} 외 ${sel.length - 1}개`;
-    const dayTxt   = !st.days.length ? '매일'     : st.days.map(d => this.DAYS[d]).join(' · ');
-    const timeTxt  = `${st.timeStart} ~ ${st.timeEnd}`;
-    return `
-      <div style="background:rgba(200,255,0,0.04);border:1px solid rgba(200,255,0,0.18);border-radius:16px;padding:16px;margin-bottom:16px;">
-        <div style="font-size:11px;color:var(--color-lime);font-weight:800;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">현재 설정 요약</div>
-        <div style="font-size:13px;line-height:2.1;">
-          <div>🏟 <span style="color:var(--color-ink3);">코트</span> &nbsp;<strong>${courtTxt}</strong></div>
-          <div>📅 <span style="color:var(--color-ink3);">요일</span> &nbsp;<strong>${dayTxt}</strong></div>
-          <div>⏰ <span style="color:var(--color-ink3);">시간</span> &nbsp;<strong>${timeTxt}</strong></div>
-        </div>
-        <div style="margin-top:10px;font-size:11px;color:var(--color-ink4);">오늘 이후 날짜에 취소 자리가 생기면 즉시 알림을 드려요</div>
-      </div>`;
   },
 
   _renderCourtList() {
@@ -1974,12 +2090,14 @@ const CourtAlert = {
     const countEl = document.getElementById('courtAlertSelCount');
     if (!listEl) return;
     const st       = this._state;
+    const f        = st.form;
+    const selIds   = f ? f.selectedIds : [];
     const filtered = this._getFiltered();
     listEl.innerHTML = filtered.length === 0
-      ? `<div style="text-align:center;padding:40px 0;color:var(--color-ink3);font-size:14px;">검색 결과가 없어요</div>`
+      ? `<div style="text-align:center;padding:32px 0;color:var(--color-ink3);font-size:14px;">검색 결과가 없어요</div>`
       : filtered.map(c => {
-          const sel = st.selectedIds.includes(c.svc_id);
-          return `<button onclick="CourtAlert.toggleCourt('${c.svc_id}')" style="display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:12px;border:1.5px solid ${sel ? 'var(--color-lime)' : 'var(--color-border)'};background:${sel ? 'rgba(200,255,0,0.04)' : 'var(--color-card)'};cursor:pointer;text-align:left;width:100%;">
+          const sel = selIds.includes(c.svc_id);
+          return `<button onclick="CourtAlert.toggleFormCourt('${c.svc_id}')" style="display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:12px;border:1.5px solid ${sel ? 'var(--color-lime)' : 'var(--color-border)'};background:${sel ? 'rgba(200,255,0,0.04)' : 'var(--color-card)'};cursor:pointer;text-align:left;width:100%;">
             <div style="width:20px;height:20px;border-radius:50%;border:2px solid ${sel ? 'var(--color-lime)' : 'var(--color-border)'};background:${sel ? 'var(--color-lime)' : 'transparent'};flex-shrink:0;display:flex;align-items:center;justify-content:center;">
               ${sel ? `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#0A1628" stroke-width="3.5"><polyline points="20 6 9 17 4 12"/></svg>` : ''}
             </div>
@@ -1990,10 +2108,10 @@ const CourtAlert = {
           </button>`;
         }).join('');
     if (countEl) {
-      countEl.innerHTML = st.selectedIds.length
+      countEl.innerHTML = selIds.length
         ? `<div style="font-size:12px;color:var(--color-lime);font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:8px;">
-             ✓ ${st.selectedIds.length}개 코트 선택됨
-             <button onclick="CourtAlert.clearSel()" style="color:var(--color-ink3);font-size:11px;background:none;border:none;cursor:pointer;">전체 해제</button>
+             ✓ ${selIds.length}개 코트 선택됨
+             <button onclick="CourtAlert.clearFormSel()" style="color:var(--color-ink3);font-size:11px;background:none;border:none;cursor:pointer;">전체 해제</button>
            </div>`
         : '';
     }
@@ -2005,49 +2123,53 @@ const CourtAlert = {
 
   toggleAlert() {
     this._state.alertOn = !this._state.alertOn;
-    if (this._state.alertOn && Store.get('seoul_api_key')) {
-      this._startPolling();
-    } else {
-      this._stopPolling();
-    }
+    this._saveRules();
     this._renderContent();
   },
 
-  toggleArea(area) {
-    const arr = this._state.areaFilter;
-    this._state.areaFilter = arr.includes(area) ? arr.filter(a => a !== area) : [...arr, area];
-    this._renderContent();
+  toggleFormArea(area) {
+    const arr = this._state.formAreaFilter;
+    this._state.formAreaFilter = arr.includes(area) ? arr.filter(a => a !== area) : [...arr, area];
+    this._renderForm();
   },
 
-  setSearch(val) { this._state.search = val; this._renderCourtList(); },
+  setFormSearch(val) { this._state.formSearch = val; this._renderCourtList(); },
 
-  toggleCourt(id) {
-    const arr = this._state.selectedIds;
-    this._state.selectedIds = arr.includes(id) ? arr.filter(s => s !== id) : [...arr, id];
+  toggleFormCourt(id) {
+    const f = this._state.form;
+    if (!f) return;
+    f.selectedIds = f.selectedIds.includes(id) ? f.selectedIds.filter(s => s !== id) : [...f.selectedIds, id];
     this._renderCourtList();
   },
 
-  clearSel() { this._state.selectedIds = []; this._renderCourtList(); },
+  clearFormSel() { if (this._state.form) { this._state.form.selectedIds = []; this._renderCourtList(); } },
 
-  toggleDay(day) {
-    const arr = this._state.days;
-    this._state.days = arr.includes(day) ? arr.filter(d => d !== day) : [...arr, day];
-    this._renderContent();
+  toggleFormDay(day) {
+    const f = this._state.form;
+    if (!f) return;
+    f.days = f.days.includes(day) ? f.days.filter(d => d !== day) : [...f.days, day];
+    this._renderForm();
   },
 
-  setTimeStart(t) {
-    this._state.timeStart = t;
-    if (t > this._state.timeEnd) this._state.timeEnd = t;
-    this._renderContent();
+  setFormTimeStart(t) {
+    const f = this._state.form;
+    if (!f) return;
+    f.timeStart = t;
+    if (t > f.timeEnd) f.timeEnd = t;
+    this._renderForm();
   },
 
-  setTimeEnd(t) {
-    this._state.timeEnd = t;
-    if (t < this._state.timeStart) this._state.timeStart = t;
-    this._renderContent();
+  setFormTimeEnd(t) {
+    const f = this._state.form;
+    if (!f) return;
+    f.timeEnd = t;
+    if (t < f.timeStart) f.timeStart = t;
+    this._renderForm();
   },
 
   async refresh() {
+    // 예약된 재시도 타이머 취소 후 즉시 시도
+    if (this._state.retryTimer) { clearTimeout(this._state.retryTimer); this._state.retryTimer = null; }
     this._state.courts  = [];
     this._state.loading = true;
     this._renderContent();
@@ -2060,13 +2182,6 @@ const CourtAlert = {
     await this._requestNotifPermission();
   },
 
-  showApiKeyInput() {
-    const key = prompt('서울시 공공데이터 API 키를 입력하세요.\n발급: https://data.seoul.go.kr → 로그인 → API 신청');
-    if (key && key.trim()) {
-      Store.set('seoul_api_key', key.trim());
-      this.refresh();
-    }
-  },
 };
 
 window.CourtAlert = CourtAlert;

@@ -11,9 +11,9 @@ const App = {
   currentData: {},
 
   init() {
-    // config.local.js에 설정된 API 키를 Store에 자동 적용
-    if (window.APP_CONFIG?.seoulApiKey && !Store.get('seoul_api_key')) {
-      Store.set('seoul_api_key', window.APP_CONFIG.seoulApiKey);
+    // 서울시 공공데이터 API 키 자동 적용 (config.local.js 우선, 없으면 기본값)
+    if (!Store.get('seoul_api_key')) {
+      Store.set('seoul_api_key', window.APP_CONFIG?.seoulApiKey || '48745a657470696e36374743776658');
     }
     this.currentUser = Auth.getCurrentUser();
     this.loadNotifications();
@@ -23,6 +23,15 @@ const App = {
     const urlParams = new URLSearchParams(window.location.search);
     const page = urlParams.get('page') || (this.currentUser ? 'home' : 'onboarding');
     this.navigate(page);
+
+    // 코트 알림 폴링 — 로그인 상태 + 알림 ON이면 앱 시작 시 바로 개시
+    if (this.currentUser) {
+      const alertSettings = Store.get('court_alert');
+      if (alertSettings?.alertOn && Store.get('seoul_api_key')) {
+        CourtAlert._loadSettings();
+        CourtAlert._startPolling();
+      }
+    }
   },
 
   navigate(pageId, data = {}, pushHistory = true) {
@@ -772,11 +781,14 @@ const Utils = {
 
   getLevelColor(level) {
     const map = {
-      '초급': '#4ADE80',
-      '초중급': '#86EFAC',
-      '중급': '#C8FF00',
-      '중상급': '#FFD700',
-      '상급': '#FF7043'
+      'NTRP 1.0': '#60A5FA',
+      'NTRP 1.5': '#4ADE80',
+      'NTRP 2.0': '#4ADE80',
+      'NTRP 2.5': '#86EFAC',
+      'NTRP 3.0': '#C8FF00',
+      'NTRP 3.5': '#FFD700',
+      'NTRP 4.0': '#FF7043',
+      'NTRP 4.5+': '#FF4757',
     };
     return map[level] || '#9CA3AF';
   },
